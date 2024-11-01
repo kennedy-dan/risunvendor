@@ -1,115 +1,177 @@
+import { useEffect } from "react";
+// import { _getContributorData } from "store/slice/contributorSlice";
+import { useSelector, useDispatch } from "react-redux";
+import { MoonLoader } from "react-spinners";
+import axios from "axios";
+import useSWR from "swr";
 import Image from "next/image";
-import localFont from "next/font/local";
+import Info from "@/components/Info";
+import NoImagePlaceholder from "@/public/svgs/no-image-placeholder.svg";
+// import ContributorLayout from "@components/ContributorLayout";
+import styles from "@/styles/contributor/dashboard.module.scss";
+import { useRouter } from 'next/router';
+import ContributorLayout from "@/components/ContributorLayout";
+import { DataTable } from "primereact/datatable";
+import { Column } from "primereact/column";
+import { columns } from "@/components/tableHeaders/dashboardTable";
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-});
+export default function Index() {
+  // const dispatch = useDispatch();
+    const router = useRouter();
 
-export default function Home() {
+  // const { data, loading } = useSelector((state) => state.contributor);
+  let data
+  const fetcher = async (url) => {
+    try {
+      const { data } = await axios.get(url);
+      return data.data.data;
+    } catch (error) {
+      if (error.response?.status === 401) {
+        router.push('/login'); // or whatever your login path is
+      }
+      throw error;
+    }
+  };
+
+  // const { data: assets } = useSWR("/contributor/assets", fetcher);
+
+  const assets = []
+
+  useEffect(() => {
+    // dispatch(_getContributorData());
+  }, []);
+
+  console.log(data);
+  console.log(assets);
   return (
-    <div
-      className={`${geistSans.variable} ${geistMono.variable} grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]`}
-    >
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              pages/index.js
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    <ContributorLayout title="dashboard">
+      <div className={styles.container}>
+        {/* {loading && (!data || !assets) && (
+          <MoonLoader
+            color="#2f4858"
+            size={22}
+            cssOverride={{ margin: "10rem auto" }}
+          />
+        )} */}
+        {/* {data && assets && ( */}
+          <>
+            <div className={`${styles.cards} grid-cols-4 gap-5`}>
+              <div className="flex items-center">
+                <div>
+                  <p>Wallet Balance</p>
+                  <h1>
+                    {Number(
+                      data?.metadata?.total_uploaded_assets
+                    ).toLocaleString()}
+                  </h1>
+                </div>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+                <div>
+                  <img src="/images/wall.png" alt="" />
+                </div>
+              </div>
+
+              <div className="flex items-center">
+                <div>
+                  <p>Pending Order</p>
+                  <h1>
+                    {Number(data?.metadata?.total_downloads).toLocaleString()}
+                  </h1>
+                </div>
+                <div>
+                  <img src="/images/pend.png" alt="" />
+                </div>
+              </div>
+
+              <div className="flex items-center ">
+                <div>
+                  <p>Processed Order</p>
+                  <h1>
+                    &#8358;
+                    {Number(
+                      data?.user?.contributor?.total_earnings
+                    ).toLocaleString()}
+                  </h1>
+                </div>
+
+                <div>
+                  <img src="/images/procc.png" alt="" />
+                </div>
+              </div>
+
+              <div className="flex items-center ">
+                <div>
+                  <p>Completed Order</p>
+                  <h1>
+                    &#8358;
+                    {Number(
+                      data?.user?.contributor?.total_earnings
+                    ).toLocaleString()}
+                  </h1>
+                </div>
+
+                <div>
+                  <img src="/images/comp.png" alt="" />
+                </div>
+              </div>
+              {/* <div>
+                <p>Available Balance</p>
+                <h1>
+                  &#8358;
+                  {Number(
+                    data?.user?.contributor?.available_balance
+                  ).toLocaleString()}
+                </h1>
+              </div> */}
+            </div>
+
+            <div className={styles.downloads}></div>
+            <p className="text-2xl pb-2">Revenue Overview</p>
+            <img className="mb-16" src="/images/conov.png" alt="" />
+
+            <p className='text-xl font-semibold mb-7' >Recent Order</p>
+
+            <DataTable
+        emptyMessage="No approved reservations"
+        // value={reservations}
+        // header={searchBar}
+        lazy
+        // loading={loading}
+        // totalRecords={count}
+        // onPage={onPage}
+        globalFilterFields={[
+          "user_details.name",
+          "user_details.phone",
+          "reserved_start_time",
+          "comment",
+        ]}
+        // first={first}
+        paginator
+        // rows={rows}
+        rowsPerPageOptions={[5, 10, 25, 50]}
+        tableStyle={{ minWidth: "30rem" }}
+        // filters={filters}
+        style={{ position: "inherit" }}
+        // onSort={(e) => {
+        //   handleColumnHeaderClick(e.sortField);
+        // }}
+      >
+        {columns.map((col, i) => {
+          return (
+            <Column
+              className="text-xs"
+              key={i}
+              sortable={col?.isSort}
+              field={col?.field}
+              header={col.header}
+              body={ col.body}
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+          );
+        })}
+      </DataTable>
+          </>
+        {/* )} */}
+      </div>
+    </ContributorLayout>
   );
 }

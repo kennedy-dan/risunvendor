@@ -1,0 +1,44 @@
+.container {
+  max-width: 80%;
+  margin-inline: auto;
+  & > span {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: var(--text-tertiary);
+    font-weight: 700;
+    margin: 3rem 0;
+    text-transform: capitalize;
+  }
+  form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    fieldset {
+      label {
+        display: block;
+        font-size: 1.4rem;
+        margin-bottom: 1rem;
+      }
+      & > input,
+      & > select {
+        font-size: 13px;
+        height: 40px;
+        width: 100%;
+        border: 1px solid #cccccc;
+        border-radius: 1rem;
+        padding-inline: 10px;
+      }
+    }
+    button {
+      grid-column: 2/3;
+      width: 20rem;
+      height: 5rem;
+      background-color: #2f4858;
+      border-radius: 32px;
+      color: var(--text-white);
+      margin-left: auto;
+      margin-top: auto;
+    }
+  }
+}

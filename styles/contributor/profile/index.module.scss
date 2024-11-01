@@ -1,0 +1,147 @@
+.container {
+  max-width: 80%;
+  margin-inline: auto;
+  & > ul {
+    display: flex;
+    justify-content: center;
+    width: 42rem;
+    margin-inline: auto;
+    padding-bottom: 1rem;
+    border-bottom: 4px solid var(--accent-color);
+    li {
+      padding: 0.6rem 1.2rem;
+      text-transform: capitalize;
+      transition: all 0.2s;
+      cursor: pointer;
+      &:hover {
+        background-color: #b200215b;
+      }
+    }
+    .active {
+      color: var(--accent-color);
+    }
+  }
+  & > span {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: var(--text-tertiary);
+    font-weight: 700;
+    margin: 3rem 0;
+    text-transform: capitalize;
+  }
+  .edit-profile {
+    .image {
+      display: flex;
+      gap: 2rem;
+      margin-top: 3rem;
+      img {
+        position: initial !important;
+        width: 10rem !important;
+        height: 10rem !important;
+        border-radius: 50%;
+        border: 1px solid #dddddd;
+        object-fit: cover;
+      }
+      label,
+      button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: auto;
+        width: 13rem;
+        height: 3.5rem;
+        background-color: #2f4858;
+        border: 1px solid #2f4858;
+        color: var(--text-white);
+        cursor: pointer;
+      }
+    }
+    form {
+      margin-top: 5rem;
+      & > div {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 3rem;
+        fieldset {
+          label {
+            display: block;
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+          }
+          input,
+          select,
+          textarea {
+            font-size: 13px;
+            height: 40px;
+            width: 100%;
+            border: 1px solid #cccccc;
+            border-radius: 1rem;
+            padding-inline: 10px;
+          }
+          textarea {
+            height: auto;
+            padding: 10px;
+          }
+        }
+      }
+      button {
+        display: block;
+        width: 20rem;
+        height: 5rem;
+        background-color: #2f4858;
+        border-radius: 32px;
+        color: var(--text-white);
+        margin-left: auto;
+        margin-top: 5rem;
+      }
+    }
+  }
+  .account-settings,
+  .change-password {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    fieldset {
+      position: relative;
+      label {
+        display: block;
+        font-size: 1.4rem;
+        margin-bottom: 1rem;
+      }
+      input,
+      select,
+      textarea {
+        font-size: 13px;
+        height: 40px;
+        width: 100%;
+        border: 1px solid #cccccc;
+        border-radius: 1rem;
+        padding-inline: 10px;
+      }
+      textarea {
+        height: auto;
+        padding: 10px;
+      }
+      svg {
+        position: absolute;
+        right: 2rem;
+        top: calc(50% + 9px);
+        height: 1.5rem;
+        width: 1.5rem;
+        cursor: pointer;
+      }
+    }
+    button {
+      width: 20rem;
+      height: 5rem;
+      background-color: #2f4858;
+      border-radius: 32px;
+      color: var(--text-white);
+      margin-left: auto;
+      margin-top: auto;
+    }
+  }
+  .change-password {
+  }
+}

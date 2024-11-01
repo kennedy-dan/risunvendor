@@ -1,0 +1,36 @@
+.container {
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	background-color: rgb(255, 255, 255);
+	border-radius: 3rem;
+	z-index: 1150;
+	.header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 2rem 4rem;
+		h1 {
+			font-size: 1.2rem;
+			text-transform: capitalize;
+		}
+		svg {
+			fill: rgb(93, 93, 93);
+			height: 2rem;
+			cursor: pointer;
+		}
+	}
+	.body {
+		padding: 4rem;
+	}
+}
+
+
+@media screen and (max-width: 600px) {
+	.header {
+		width: 70%;
+		margin: auto;
+		margin-top: 30px;
+	}
+}
+

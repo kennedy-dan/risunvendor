@@ -3,19 +3,320 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --grey: #868DA6;
+  --primaryColor: #b20021;
+  --accent-color: #b20021;
+  --secColor: #2f4858;
+  --green: #06d6a0;
+  --bg-secondary: #3d3d3d;
+  --bg-tertiary: #303030;
+  --bg-white: #ffffff;
+  --text-primary: #181818;
+  --text-secondary: #3d3d3d;
+  --text-tertiary: #2f4858;
+  --text-white: #ffffff;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+*,
+*::after,
+*::before {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-style: normal;
+}
+
+html {
+  font-size: 62.5%;
+}
+
+
+
+body {
+  font-family: "Mulish", sans-serif;
+  /* // font-size: 1.6rem; */
+  /* // font-weight: 400; */
+  /* // color: var(--text-secondary); */
+}
+
+h1 {
+  font-size: 3.5rem;
+  /* // font-weight: 700; */
+  color: var(--text-primary);
+}
+
+h2 {
+  /* // font-weight: 700; */
+  font-size: 3rem;
+}
+
+h3 {
+  /* // font-weight: 700; */
+  font-size: 2rem;
+  color: var(--text-secondary);
+}
+
+p {
+  /* // font-style: normal; */
+}
+
+input,
+select,
+textarea {
+  &:focus-visible {
+    /* // outline: 1px solid var(--accent-color) !important; */
+  }
+  &:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 1000px white inset !important;
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+svg {
+  cursor: pointer;
+}
+
+.react-select__control--is-focused {
+  outline: 1px solid var(--accent-color) !important;
+}
+
+.react-select__input-container {
+  & > input {
+    outline: initial !important;
+  }
+}
+
+.Toastify__toast-theme--light.Toastify__toast--info,
+.Toastify__toast-theme--light.Toastify__toast--warning,
+.Toastify__toast-theme--light.Toastify__toast--success,
+.Toastify__toast-theme--light.Toastify__toast--error {
+  color: var(--text-white);
+  svg {
+    fill: #ffffff;
+  }
+}
+
+.Toastify__toast-theme--light.Toastify__toast--success {
+  background-color: #3498db;
+}
+
+.Toastify__toast-theme--light.Toastify__toast--error {
+  background-color: #e74c3c;
+}
+
+.Toastify__toast-theme--light.Toastify__toast--info {
+  background-color: #5a5a5a;
+}
+
+.Toastify__toast-theme--light.Toastify__toast--warning {
+  background-color: #f1c40f;
+}
+
+::selection {
+  background-color: var(--accent-color);
+  color: #ffffff;
+}
+
+::-webkit-scrollbar {
+  width: 0.7rem;
+}
+::-webkit-scrollbar-track {
+  background-color: #d9d9d9;
+}
+::-webkit-scrollbar-thumb {
+  background-color: #898989;
+  border-radius: 2rem;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--accent-color);
+}
+
+@media screen and (max-width: 1046px) {
+  html {
+    font-size: 55%;
+  }
+}
+
+
+.slider-box {
+  max-width: 650px;
+  position: relative;
+  display: block;
+  top: 50%;
+  left: 50%;
+  background: rgba(255, 255, 255, .4);
+  transform: translate(-50%, -50%);
+  box-shadow: 0 15px 20px rgba(0,0,0,.2);
+
+}
+
+.slider-box-support {
+  max-width: 450px;
+  position: relative;
+  display: block;
+  top: 50%;
+  left: 50%;
+  background: rgba(255, 255, 255, .4);
+  transform: translate(-50%, -50%);
+  box-shadow: 0 15px 20px rgba(0,0,0,.1);
+
+}
+.unique-box {
+  max-width: 650px;
+  position: absolute;
+  display: block;
+
+  background: rgba(255, 255, 255, .8);
+  transform: translate(-50%, -50%);
+  box-shadow: 0 15px 20px rgba(0,0,0,.2);
+
+}
+
+.ant-select-selection-placeholder {
+    
+  font-family: 'Mulish', sans-serif;
+  /* // font-size: 16px; */
+  font-weight: 700 !important;
+  color:#6B7280 !important;
+  padding-left: 16px !important;
+}
+
+:where(.css-dev-only-do-not-override-1ls2j61).ant-select .ant-select-selection-item {
+  flex: 1;
+  font-weight: bold !important;
+  position: relative;
+  user-select: none;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-family: 'Mulish', sans-serif !important;
+   padding-left: 16px !important;
+}
+
+
+
+.ant-select-arrow {
+  font-family: 'Mulish', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color:#3d3d3d !important
+}
+
+.p-carousel-container {
+  display: flex;
+  flex-direction: row;
+  position: relative;
+}
+
+.p-carousel-prev {
+  align-self: center;
+  flex-grow: 0;
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  position: absolute !important;
+  background: white !important;
+  height: 40px !important;
+  left: 0%;
+  z-index: 1;
+  /* // bottom:55% !important; */
+  width: 40px !important;
+  border-radius: 100%;
+  /* padding: 10px; */
+}
+
+.p-carousel-next {
+  align-self: center;
+  flex-grow: 0;
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  position: absolute !important;
+  background: white !important;
+  height: 40px !important;
+  right: 0%;
+  z-index: 1;
+  /* // bottom:55% !important; */
+  width: 40px !important;
+  border-radius: 100%;
+  /* padding: 10px; */
+}
+
+
+.p-progressbar {
+  height: 2px !important; /* Set your desired height */
+}
+
+.p-carousel .p-carousel-indicators .p-carousel-indicator button {
+  background-color: #ced4da !important;
+  width: 1.7rem !important;
+  height: 1.7rem !important;
+  transition: background-color 0.2s, color 0.2s, box-shadow 0.2s !important;
+  border-radius: 100% !important;
+}
+
+
+.p-carousel .p-carousel-indicators .p-carousel-indicator.p-highlight button {
+  background-color: black !important;
+}
+
+
+
+.canvas-print {
+    perspective: 1000px;
+}
+
+.canvas {
+    position: relative;
+    width: 300px;
+    height: 400px;
+    transform-style: preserve-3d;
+    transform: rotateY(15deg);
+    box-shadow: 0 0px 20px rgba(0, 0, 0, 0.9);
+}
+
+.canvas img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    backface-visibility: hidden;
+}
+
+.canvas::before,
+.canvas::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: #fff;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+
+.canvas::before {
+    transform: translateZ(-10px);
+}
+
+.canvas::after {
+    top: 10px;
+    left: 10px;
+    width: calc(100% - 20px);
+    height: calc(100% - 20px);
+    transform: translateZ(-20px);
+}
+
+.container {
+  width: 300px;
+  height: 300px;
+  position: relative;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  clip-path: url(#clip-shape);
 }
