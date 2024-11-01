@@ -39,7 +39,7 @@ const Order = () => {
               <div>
                 <img src='/images/filterr.png' />
               </div>
-            <Link href="/contributor/content/upload">Upload Content</Link>
+            <Link href="/order/1">Upload Content</Link>
   
             </div>
           </div>
