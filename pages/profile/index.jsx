@@ -8,7 +8,7 @@ import Link from "next/link";
 import DummyImage from "@/public/images/dummy-image.jpg";
 import ContributorLayout from "@/components/ContributorLayout";
 import styles from "@/styles/contributor/profile/index.module.scss";
-import { Modal } from "antd/lib";
+import { Modal } from "antd";
 import { toast } from "react-toastify";
 import { EyeOff, EyeOn, LeftArrow } from "@/public/svgs/icons";
 
@@ -439,7 +439,7 @@ let data
                 {active === "profile" ? profile : account}
               </div>
             </div>
-            {/* <Link href="profile/edit">Edit Profile</Link> */}
+            <Link href="profile/edit">Edit Profile</Link>
          
           </>
         {/* )} */}
