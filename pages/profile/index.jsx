@@ -8,7 +8,7 @@ import Link from "next/link";
 import DummyImage from "@/public/images/dummy-image.jpg";
 import ContributorLayout from "@/components/ContributorLayout";
 import styles from "@/styles/contributor/profile/index.module.scss";
-import { Modal } from "antd";
+import { Modal } from "antd/lb";
 import { toast } from "react-toastify";
 import { EyeOff, EyeOn, LeftArrow } from "@/public/svgs/icons";
 
