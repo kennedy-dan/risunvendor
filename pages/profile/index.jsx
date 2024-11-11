@@ -8,7 +8,7 @@ import Link from "next/link";
 import DummyImage from "@/public/images/dummy-image.jpg";
 import ContributorLayout from "@/components/ContributorLayout";
 import styles from "@/styles/contributor/profile/index.module.scss";
-import { Modal } from "antd";
+// import { Modal } from "antd";
 import { toast } from "react-toastify";
 import { EyeOff, EyeOn, LeftArrow } from "@/public/svgs/icons";
 
@@ -444,7 +444,7 @@ let data
           </>
         {/* )} */}
       </div>
-      <Modal // title="Image Preview"
+      {/* <Modal // title="Image Preview"
         footer={null}
         open={openprev}
         width={1000}
@@ -575,7 +575,7 @@ let data
             </div>
           </div>
         </div>
-      </Modal>
+      </Modal> */}
     </ContributorLayout>
   );
 }
