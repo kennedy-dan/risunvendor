@@ -196,7 +196,7 @@ export default function ContributorLayout({ title, children }) {
         <header>
           <h1>{title}</h1>
             <div>
-          <Link href='/contributor/profile' className='flex space-x-3' >
+          <Link href='/profile' className='flex space-x-3' >
 
             <Image
               src={data?.user?.profile_image || DummyImage}
