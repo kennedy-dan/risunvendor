@@ -1,4 +1,4 @@
-import { useState, useRef, Fragment } from "react";
+import { useState, useRef, useEffect, Fragment } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useRouter } from "next/router";
 import { motion, AnimatePresence } from "framer-motion";
@@ -15,6 +15,7 @@ import { logOutCustomer } from "@/store/slice/authSlice";
 export default function ContributorLayout({ title, children }) {
   const mobileNavRef = useRef(null);
   const router = useRouter();
+  const { token } = useSelector((state) => state.auth);
 
   const { width } = useWindowDimension();
   const dispatch = useDispatch()
@@ -45,6 +46,14 @@ export default function ContributorLayout({ title, children }) {
     },
   ];
   useOnClickOutside(mobileNavRef, () => setMobileNav(false));
+
+  useEffect(() => {
+    
+    if(!token) {
+      router.push('/login')
+    }
+  }, [token])
+  
 
   return (
     <section className={styles.container}>
