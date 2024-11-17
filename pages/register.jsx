@@ -718,19 +718,15 @@ const CustomerSignup = () => {
             <h2 className="font-semibold text-center tracking-tight ">
               Account creation successful
             </h2>
-            <p className="font text-gray-600 text-[16px] px-6 tracking-tighter">
-              A verification mail has been sent to the email address you
-              provided. If you haven't received it, click on the resend button
-              to resend.
-            </p>
+         
             {/* <button type="button" className='text-4xl' >Resend link</button> */}
             <button  className="text-4xl mt-2">
               <Link href="/login">Login</Link>
             </button>
-               <p className="text-center tracking-tight text-[16px] mt-9">
+               {/* <p className="text-center tracking-tight text-[16px] mt-9">
               Havent received verification link?{" "}
               <div type="" className="text-blue-600    mt-4">Resend</div>
-            </p>
+            </p> */}
           </form>
         )}
       </div>
