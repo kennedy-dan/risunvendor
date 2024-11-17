@@ -1,7 +1,23 @@
-import React from 'react'
+import React,{useEffect} from 'react'
 import ContributorLayout from "@/components/ContributorLayout";
+import { useRouter } from "next/router";
+import { useSelector, useDispatch } from "react-redux";
+import { orderinfoId } from '@/store/slice/dashboardSlice';
 
 const OrderId = () => {
+  const router = useRouter();
+
+  const {id} = router.query
+  const dispatch = useDispatch()
+  useEffect(() => {
+    
+   if(id) {
+    dispatch(orderinfoId(id))
+}
+  }, [id])
+  
+
+
   return (
     <ContributorLayout title="Order details">
             <div>

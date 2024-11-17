@@ -1,5 +1,6 @@
 
   import Link from "next/link";
+  console.log('rowDat')
   
   export const columns = [
     // {
@@ -9,11 +10,12 @@
     //   filter: true,
     // },
     {
-      body: (rowData) => {
+      body: (rowData, options) => {
+        console.log(rowData, options)
         return (
           <div className="notranslate">
             <Link href={`/admin/reservations/details/${rowData?.id}/`}>
-              <p className="underline capitalize underline-offset-4 hover:text-blue-300 ">{rowData.user_details.name}</p>
+            <div> {options.rowIndex + 1}</div>
             </Link>
           </div>
         );
@@ -26,7 +28,9 @@
     },
   
     {
-      body: (rowData) => rowData.user_details.phone,
+      body: (rowData) => {
+        console.log(rowData.id)
+        return(<Link href={`/orders/${rowData?.id}`} ><p className="text-blue-500" >{rowData.id}</p></Link>)},
       header: "Order number",
       // isSort: true,
       field: "phone",
@@ -46,14 +50,16 @@
       field: "number",
       header: "Customer Name",
       // isSort: true,
-  
+      // body: 'yes',
       filter: true,
     },
   
     {
     //   body: dateFormat,
       header: "Product Details",
-      // isSort: true,
+      body: (rowData) => {
+        console.log(rowData.id)
+        return(<p>{rowData?.deliverable?.title}</p>)},
       field: "reserved_start_time",
       filter: true,
     },
@@ -77,16 +83,8 @@
       // isSort: true,
       field: "has_food",
       filter: true,
-      body: (rowData) =>
-        rowData.has_food ? (
-          <div className="flex items-center h-4 px-4 py-3 bg-green-200 rounded-md w-fit">
-            <p className="font-semibold text-green-900">Yes</p>
-          </div>
-        ) : (
-          <div className="flex items-center h-4 px-4 py-3 bg-red-200 rounded-md w-fit">
-            <p className="font-semibold text-red-900">No</p>
-          </div>
-        ),
+      body: (rowData) =>{
+        return(<p>{rowData?.purchase_price}</p>)},
     },
 
     {

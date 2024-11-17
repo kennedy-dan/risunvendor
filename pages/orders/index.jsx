@@ -7,6 +7,8 @@ import { MoonLoader } from "react-spinners";
 import axios from "axios";
 import useSWR, { useSWRConfig } from "swr";
 import Info from "@/components/Info";
+import { useSelector, useDispatch } from "react-redux";
+
 import Link from "next/link";
 import Image from "next/image";
 import useOnClickOutside from "@/hooks/useOnClickOutside";
@@ -16,7 +18,17 @@ import styles from "@/styles/contributor/content/index.module.scss";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { columns } from "@/components/tableHeaders/dashboardTable";
+import { orderinfo } from "@/store/slice/dashboardSlice";
 const Order = () => {
+  const dispatch = useDispatch()
+  const { order } = useSelector((state) => state.dashboard);
+  const tableDatas = order?.data?.data
+  const tableData = tableDatas?.map(order => order.items).flat();
+  useEffect(() => {
+    
+  dispatch(orderinfo())
+  }, [])
+  
     return (
         <ContributorLayout title="Order">
         <div className={styles.container}>
@@ -45,43 +57,43 @@ const Order = () => {
           </div>
           
           <DataTable
-        emptyMessage="No approved reservations"
-        // value={reservations}
-        // header={searchBar}
-        lazy
-        // loading={loading}
-        // totalRecords={count}
-        // onPage={onPage}
-        globalFilterFields={[
-          "user_details.name",
-          "user_details.phone",
-          "reserved_start_time",
-          "comment",
-        ]}
-        // first={first}
-        paginator
-        // rows={rows}
-        rowsPerPageOptions={[5, 10, 25, 50]}
-        tableStyle={{ minWidth: "30rem" }}
-        // filters={filters}
-        style={{ position: "inherit" }}
-        // onSort={(e) => {
-        //   handleColumnHeaderClick(e.sortField);
-        // }}
-      >
-        {columns.map((col, i) => {
-          return (
-            <Column
-              className="text-xs"
-              key={i}
-              sortable={col?.isSort}
-              field={col?.field}
-              header={col.header}
-              body={ col.body}
-            />
-          );
-        })}
-      </DataTable>
+            emptyMessage="No approved reservations"
+            value={tableData}
+            // header={searchBar}
+            // lazy
+            // loading={loading}
+            // totalRecords={count}
+            // onPage={onPage}
+            globalFilterFields={[
+              "user_details.name",
+              "user_details.phone",
+              "reserved_start_time",
+              "comment",
+            ]}
+            // first={first}
+            // paginator
+            // rows={rows}
+            rowsPerPageOptions={[5, 10, 25, 50]}
+            tableStyle={{ minWidth: "30rem" }}
+            // filters={filters}
+            style={{ position: "inherit", fontSize:'14px', marginBottom:'14px' }}
+            // onSort={(e) => {
+            //   handleColumnHeaderClick(e.sortField);
+            // }}
+          >
+            {columns.map((col, i) => {
+              return (
+                <Column
+                  className="text-[13px] mt-[50px]"
+                  key={i}
+                  sortable={col?.isSort}
+                  field={col?.field}
+                  header={col.header}
+                  body={col.body}
+                />
+              );
+            })}
+          </DataTable>
           </div>
           </ContributorLayout>
     )

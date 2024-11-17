@@ -11,6 +11,7 @@ import styles from "@/styles/contributor/profile/index.module.scss";
 import { Modal } from "antd/lib";
 import { toast } from "react-toastify";
 import { EyeOff, EyeOn, LeftArrow } from "@/public/svgs/icons";
+import { profileinfo } from "@/store/slice/dashboardSlice";
 
 // import {
 //   _getContributorData,
@@ -23,9 +24,11 @@ import { EyeOff, EyeOn, LeftArrow } from "@/public/svgs/icons";
 //   uploadProfileImage,
 // } from "services/customer";
 export default function Index() {
-//   const dispatch = useDispatch();
+  const dispatch = useDispatch();
 //   const { data, loading } = useSelector((state) => state.contributor);
 //   const fetcher = (url) => axios.get(url).then(({ data }) => data.data);
+const { profiledata } = useSelector((state) => state.dashboard);
+
 let data
   const [photoUrl, setPhotoUrl] = useState(null);
   const [photo, setPhoto] = useState(null);
@@ -44,7 +47,7 @@ let data
 //   );
   const [active, setActive] = useState("profile");
   const [openprev, setPrev] = useState(false);
-
+console.log(profiledata)
   const [bankData, setBankData] = useState({
     bankName: "",
     accountName: "",
@@ -80,6 +83,7 @@ let data
 
   useEffect(() => {
     // dispatch(_getContributorData());
+    dispatch(profileinfo())
   }, []);
 
   useEffect(() => {
@@ -340,13 +344,13 @@ let data
             />
             <div>
               <p className="md:text-[16px] font-bold">
-                {`${data?.user?.first_name} ${data?.user?.last_name}`}
+                {`${profiledata?.data?.data?.name}`}
                 {/* <span>
                     <LocationMarker />
                     Ogun state, Nigeria
                   </span> */}
               </p>
-              <b className="text-[#eb5757]">Contributor</b>
+              <b className="text-[#eb5757]">vendor</b>
             </div>
           </div>
           <div>
@@ -373,13 +377,13 @@ let data
           <p className="text-[13px] mt-3">
             Phone :
             <span className="font-bold text-[#2f4858] pl-4">
-              {data?.user?.phone_number}
+              {profiledata?.data?.data?.phone}
             </span>
           </p>
           <p className="text-[13px] mt-3">
             Email Address :
             <span className="!lowercase font-bold text-[#2f4858] pl-4">
-              {data?.user?.email}
+              {profiledata?.data?.data?.email}
             </span>
           </p>
           {/* <p>
@@ -393,7 +397,7 @@ let data
           <p className="mt-3 text-[13px]">
             Gender :
             <span className="!lowercase font-bold text-[#2f4858] pl-4">
-              {data?.user?.gender}
+              {profiledata?.data?.data?.gender}
             </span>
           </p>
           {/* <p>
@@ -416,14 +420,14 @@ let data
   return (
     <ContributorLayout title="Profile">
       <div>
-        {/* {loading && !data && (
+        {profiledata?.loading && (
           <MoonLoader
             color="#2f4858"
             size={22}
             cssOverride={{ margin: "10rem auto" }}
           />
-        )} */}
-        {/* {data && ( */}
+        )}
+        {!profiledata?.loading && (
           <>
             <div className="flex w-full justify-between  ">
               <div className='cursor-pointer' >
@@ -442,7 +446,7 @@ let data
             <Link href="profile/edit">Edit Profile</Link>
          
           </>
-        {/* )} */}
+        )}
       </div>
       <Modal // title="Image Preview"
         footer={null}

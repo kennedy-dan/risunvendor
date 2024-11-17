@@ -320,3 +320,9 @@ svg {
   object-fit: cover;
   clip-path: url(#clip-shape);
 }
+.p-datatable {
+  position: inherit;
+}
+p-datatable-thead {
+  margin-bottom: 16px !important;
+}

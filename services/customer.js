@@ -1,11 +1,22 @@
 import axios from "axios";
 
 export function loginCustomer(payload) {
-  return axios.post(`/login`, payload);
+  return axios.post(`/vendor/login`, payload);
 }
-
+export function dashboard() {
+  return axios.get('/vendor/dashboard')
+}
+export function order() {
+  return axios.get('/vendor/orders')
+}
+export function orderId(id) {
+  return axios.get(`/vendor/orders/${id}`)
+}
+export function profile() {
+  return axios.get('/vendor/profile')
+}
 export function registerCustomer(payload) {
-  return axios.post(`/register`, payload);
+  return axios.post(`vendor/register`, payload);
 }
 
 export function forgotPassword(payload) {

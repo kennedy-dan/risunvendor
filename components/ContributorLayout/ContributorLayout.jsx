@@ -1,5 +1,5 @@
 import { useState, useRef, Fragment } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useRouter } from "next/router";
 import { motion, AnimatePresence } from "framer-motion";
 import * as icons from "@/public/svgs/icons";
@@ -10,10 +10,14 @@ import Image from "next/image";
 import Logo from "@/components/UI/Logo";
 import DummyImage from "@/public/images/dummy-image.jpg";
 import styles from "./ContributorLayout.module.scss";
+import { logOutCustomer } from "@/store/slice/authSlice";
 
 export default function ContributorLayout({ title, children }) {
   const mobileNavRef = useRef(null);
+  const router = useRouter();
+
   const { width } = useWindowDimension();
+  const dispatch = useDispatch()
   // const { user } = useSelector((state) => state.auth);
   // const { data } = useSelector((state) => state.contributor);
   let user
@@ -103,12 +107,14 @@ export default function ContributorLayout({ title, children }) {
                 </Fragment>
               ))}
             </ul>
-            <Link
-              href="/contributor/terms-and-conditions"
-              className="mt-auto mb-4 ml-4 text-xl text-red-600 hover:underline"
+            <div
+ onClick={() => {
+  dispatch(logOutCustomer());
+  router.push("/login");
+}}              className="mt-auto mb-4 ml-4 text-xl text-red-600 hover:underline"
             >
-              Terms of service
-            </Link>
+              Log out 
+            </div>
           </nav>
         </>
       )}
