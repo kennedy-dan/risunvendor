@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 // import { _getContributorData } from "store/slice/contributorSlice";
-import { confirmOtp, requestWithdrawal, resendOtp } from "@/services/contributor";
+import { confirmOtp, resendOtp } from "@/services/contributor";
 import { LineChart, BarChart } from "@/components/Charts";
 import { MoonLoader } from "react-spinners";
-// import { toast } from "react-toastify";
+import { toast } from "react-toastify";
 import axios from "axios";
+import { dashboardinfo } from "@/store/slice/dashboardSlice";
+
 import useSWR from "swr";
 import NoImagePlaceholder from "@/public/svgs/no-image-placeholder.svg";
 import ContributorLayout from "@/components/ContributorLayout";
@@ -14,15 +16,20 @@ import OTPInput from "react-otp-input";
 import Info from "@/components/Info";
 import Modal from "@/components/Modal";
 import styles from "@/styles/contributor/content/earnings.module.scss";
-
+import {
+  withdrawreq
+} from "@/store/slice/dashboardSlice";
 export default function Index() {
-//   const dispatch = useDispatch();
+  const dispatch = useDispatch();
 //   const { data, loading } = useSelector((state) => state.contributor);
 let data
 let loading 
   const [otp, setOtp] = useState("");
   const [transactionRef, setTransactionRef] = useState("");
+  const [balance, setWalletBalance] = useState("");
   const [initializeOtp, setInitializeOtp] = useState(false);
+  const { info } = useSelector((state) => state.dashboard);
+
   const [activeTab, setActiveTab] = useState("earnings");
   const [modalDisplay, setModalDisplay] = useState(false);
   const [amount, setAmount] = useState("");
@@ -30,30 +37,51 @@ let loading
     axios.get(url).then(({ data }) => data.data);
   const getEarningsHistory = (url) =>
     axios.get(url).then(({ data }) => data.data);
-  const { data: withdrawalHistory } = useSWR(
-    "/contributor/payouts",
-    getWithdrawalHistory
-  );
-  const { data: earningsHistory } = useSWR(
-    "/contributor/earnings",
-    getEarningsHistory
-  );
+  // const { data: withdrawalHistory } = useSWR(
+  //   // "/contributor/payouts",
+  //   getWithdrawalHistory
+  // );
+  // const { data: earningsHistory } = useSWR(
+  //   // "/contributor/earnings",
+  //   getEarningsHistory
+  // );
+  useEffect(() => {
+    dispatch(dashboardinfo());
+  }, []);
 
+  useEffect(() => {
+    if(info?.data?.data?.wallet_balance){
+      setWalletBalance(info?.data?.data?.wallet_balance)
+    }
+  }, [info]);
+
+  let earningsHistory
+  let withdrawalHistory
   function initializeWithdrawal(e) {
     e.preventDefault();
-    toast.promise(requestWithdrawal({ amount: +amount }), {
-      pending: "Requesting",
-      success: {
-        render({ data }) {
-          setInitializeOtp(true);
-          setTransactionRef(data?.data?.data?.tx_ref);
-        //   dispatch(_getContributorData());
-          return data?.data.message;
-        },
-      },
-    });
-  }
+    console.log('uhuhu')
+    dispatch(withdrawreq({ amount: +amount })).then((response) => {
+      console.log(response);
+      if (response?.payload?.data?.id) {
+        toast.success("request sent successfully");
+    // dispatch(profileinfo());
 
+      } else {
+        toast.error("request was not sent ");
+      }
+    })
+  }
+  // {
+  //   pending: "Requesting",
+  //   success: {
+  //     render({ data }) {
+  //       setInitializeOtp(true);
+  //       setTransactionRef(data?.data?.data?.tx_ref);
+  //     //   dispatch(_getContributorData());
+  //       return data?.data.message;
+  //     },
+  //   },
+  // }
   function handleConfirmOtp(e) {
     e.preventDefault();
     toast.promise(confirmOtp({ otp_code: otp, tx_ref: transactionRef }), {
@@ -211,7 +239,7 @@ let loading
                     {" "}
                     &#8358;
                     {Number(
-                      data?.contributor_data?.available_balance
+                      balance
                     ).toLocaleString()}
                   </h2>
                   <button className='mt-20'  onClick={() => setModalDisplay(true)}>
@@ -269,7 +297,7 @@ let loading
                     {" "}
                     &#8358;
                     {Number(
-                      data?.contributor_data?.available_balance
+                      balance
                     ).toLocaleString()}
                   </h2>
                

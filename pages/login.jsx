@@ -108,7 +108,7 @@ const Index = () => {
           <button  className="w-full text-black border border-black text-4xl py-6">Sign in With Google</button>
         </div>
         <div>
-          <p className='text-center'>Dont have an account? <span className='text-blue-600  text-[16px] mt-4'>Sign up</span></p>
+          <p className='text-center'>Dont have an account? <Link href='/register' className='text-blue-600  text-[16px] mt-4'>Sign up</Link></p>
         </div>
         </form>
       </div>

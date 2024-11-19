@@ -63,9 +63,7 @@ export function getAsset(assetId) {
   return axios.get(`/contributor/assets/${assetId}`);
 }
 
-export function requestWithdrawal(payload) {
-  return axios.post(`/contributor/withdrawals/initialize`, payload);
-}
+
 
 export function resendOtp(transactionId) {
   return axios.post(`/contributor/withdrawals/${transactionId}/resend-otp`);

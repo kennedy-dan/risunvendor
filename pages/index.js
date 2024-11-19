@@ -70,7 +70,7 @@ export default function Index() {
                 <p>Wallet Balance</p>
                 <h1>
                   {Number(
-                    data?.metadata?.total_uploaded_assets
+                   info?.data?.data?.wallet_ballance
                   ).toLocaleString()}
                 </h1>
               </div>
@@ -100,7 +100,7 @@ export default function Index() {
                 <h1>
                   &#8358;
                   {Number(
-                    data?.user?.contributor?.total_earnings
+                    info?.data?.data?.total_processing_orders
                   ).toLocaleString()}
                 </h1>
               </div>

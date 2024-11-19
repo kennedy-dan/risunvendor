@@ -32,7 +32,15 @@ export function resendEmailVerificationLink(payload) {
 }
 
 export function uploadProfile(payload) {
-  return axios.post(`/account/settings/update-base-data`, payload);
+  return axios.post(`/vendor/update`, payload);
+}
+
+export function requestWithdrawal(payload) {
+  return axios.post(`/vendor/withdrawals/request`, payload);
+}
+
+export function requesthistoryWithdrawal() {
+  return axios.get(`/vendor/withdrawals/history`);
 }
 
 export function uploadProfileImage(payload) {
@@ -40,7 +48,7 @@ export function uploadProfileImage(payload) {
 }
 
 export function updateAccountInformation(payload) {
-  return axios.post(`/account/settings/update-bank-details`, payload);
+  return axios.post(`/vendor/bank-account/create`, payload);
 }
 
 export function updatePassword(payload) {

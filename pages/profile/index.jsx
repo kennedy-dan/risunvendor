@@ -11,7 +11,11 @@ import styles from "@/styles/contributor/profile/index.module.scss";
 import { Modal } from "antd/lib";
 import { toast } from "react-toastify";
 import { EyeOff, EyeOn, LeftArrow } from "@/public/svgs/icons";
-import { profileinfo } from "@/store/slice/dashboardSlice";
+import {
+  profileinfo,
+  createbankinfo,
+  editprofileinfo,
+} from "@/store/slice/dashboardSlice";
 
 // import {
 //   _getContributorData,
@@ -25,11 +29,11 @@ import { profileinfo } from "@/store/slice/dashboardSlice";
 // } from "services/customer";
 export default function Index() {
   const dispatch = useDispatch();
-//   const { data, loading } = useSelector((state) => state.contributor);
-//   const fetcher = (url) => axios.get(url).then(({ data }) => data.data);
-const { profiledata } = useSelector((state) => state.dashboard);
+  //   const { data, loading } = useSelector((state) => state.contributor);
+  //   const fetcher = (url) => axios.get(url).then(({ data }) => data.data);
+  const { profiledata } = useSelector((state) => state.dashboard);
 
-let data
+  let data;
   const [photoUrl, setPhotoUrl] = useState(null);
   const [photo, setPhoto] = useState(null);
   const [about, setAbout] = useState("");
@@ -41,13 +45,13 @@ let data
   const [inputType1, setInputType1] = useState("password");
   const [inputType2, setInputType2] = useState("password");
   const [inputType3, setInputType3] = useState("password");
-//   const { data: bankingDetails } = useSWR(
-//     "/contributor/account-details",
-//     fetcher
-//   );
+  //   const { data: bankingDetails } = useSWR(
+  //     "/contributor/account-details",
+  //     fetcher
+  //   );
   const [active, setActive] = useState("profile");
   const [openprev, setPrev] = useState(false);
-console.log(profiledata)
+  console.log(profiledata);
   const [bankData, setBankData] = useState({
     bankName: "",
     accountName: "",
@@ -57,6 +61,7 @@ console.log(profiledata)
   const [profileData, setProfileData] = useState({
     firstName: "",
     lastName: "",
+    name: "",
     email: "",
     gender: "",
     country: "",
@@ -64,6 +69,14 @@ console.log(profiledata)
     city: "",
     street: "",
   });
+
+  useEffect(() => {
+    setBankData({
+      bankName: profiledata?.data?.data?.bank_account?.bank_name,
+      accountName: profiledata?.data?.data?.bank_account?.account_name,
+      accountNumber: profiledata?.data?.data?.bank_account?.account_number,
+    });
+  }, [profiledata]);
 
   function updateBankData(e) {
     const { value, name } = e.target;
@@ -83,42 +96,45 @@ console.log(profiledata)
 
   useEffect(() => {
     // dispatch(_getContributorData());
-    dispatch(profileinfo())
+    dispatch(profileinfo());
   }, []);
 
   useEffect(() => {
     setProfileData({
-      firstName: data?.user?.first_name,
-      lastName: data?.user?.last_name,
-      email: data?.user?.email,
-      gender: data?.user?.gender,
-      // country: data?.user_bio.country,
-      // state: data?.user_bio.state,
-      // city: data?.user_bio.city,
-      // street: data?.user_bio.street,
+      firstName: profiledata?.data?.data?.personnel_name,
+      name: profiledata?.data?.data?.name,
+      lastName: profiledata?.data?.data?.personnel_role,
+      email: profiledata?.data?.data?.email,
+      gender: profiledata?.data?.data?.type,
+      country: profiledata?.data?.data?.country,
+      state: profiledata?.data?.data?.state,
+      city: profiledata?.data?.data?.city,
+      street: profiledata?.data?.data?.street,
     });
-  }, [data]);
+  }, [profiledata]);
 
   function handleProfileUpdate(e) {
     e.preventDefault();
     const payload = {
-      first_name: profileData.firstName,
-      last_name: profileData.lastName,
+      personnel_name: profileData.firstName,
+      name: profileData.name,
+      personnel_role: profileData.lastName,
       email: profileData.email,
-      gender: profileData.gender,
+      type: profileData.gender,
       country: profileData.country,
       state: profileData.state,
       city: profileData.city,
       street: profileData.street,
     };
-    toast.promise(uploadProfile(payload), {
-      pending: "Updating Profile",
-      success: {
-        render() {
-        //   dispatch(_getContributorData());
-          return "Profile Updated";
-        },
-      },
+    dispatch(editprofileinfo(payload)).then((response) => {
+      console.log(response);
+      if (response?.payload?.data?.id) {
+        toast.success("Profile edited successfully");
+    dispatch(profileinfo());
+
+      } else {
+        toast.error("Profile edited successfully ");
+      }
     });
   }
   function uploadPhoto() {
@@ -128,7 +144,7 @@ console.log(profiledata)
       pending: "Uploading Photo",
       success: {
         render() {
-        //   dispatch(_getContributorData());
+          //   dispatch(_getContributorData());
           setPhotoUrl(null);
           return "Photo Uploaded";
         },
@@ -157,14 +173,15 @@ console.log(profiledata)
       account_number: bankData.accountNumber,
       // bank_sort_code: 6172450185,
     };
-    toast.promise(updateAccountInformation(payload), {
-      pending: "Updating Account",
-      success: {
-        render() {
-          // dispatch(_getContributorData());
-          return "Account Updated";
-        },
-      },
+    dispatch(createbankinfo(payload)).then((response) => {
+      console.log(response);
+      if (response?.payload?.data?.id) {
+        toast.success("account created successfully");
+    dispatch(profileinfo());
+
+      } else {
+        toast.error("account was not created ");
+      }
     });
   }
 
@@ -243,7 +260,7 @@ console.log(profiledata)
           </button>
         </div>
       </div>
-      <div>
+      {/* <div>
         <div
           // {...motionProps}
           // onSubmit={handlePasswordUpdate}
@@ -326,7 +343,7 @@ console.log(profiledata)
             </button>
           </div>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 
@@ -430,11 +447,25 @@ console.log(profiledata)
         {!profiledata?.loading && (
           <>
             <div className="flex w-full justify-between  ">
-              <div className='cursor-pointer' >
-                <div className={`${active == 'profile' ? 'text-[#2f4858] text-[14px] font-bold' : 'text-[13px]' }`} onClick={() => setActive("profile")}>
+              <div className="cursor-pointer">
+                <div
+                  className={`${
+                    active == "profile"
+                      ? "text-[#2f4858] text-[14px] font-bold"
+                      : "text-[13px]"
+                  }`}
+                  onClick={() => setActive("profile")}
+                >
                   <p>My Profile</p>
                 </div>
-                <div className={`${active == 'account' ? 'text-[#2f4858] text-[14px] font-semibold' : 'text-[13px]' }`} onClick={() => setActive("account")}>
+                <div
+                  className={`${
+                    active == "account"
+                      ? "text-[#2f4858] text-[14px] font-semibold"
+                      : "text-[13px]"
+                  }`}
+                  onClick={() => setActive("account")}
+                >
                   <p>Account Settings</p>
                 </div>
               </div>
@@ -443,8 +474,7 @@ console.log(profiledata)
                 {active === "profile" ? profile : account}
               </div>
             </div>
-            <Link href="profile/edit">Edit Profile</Link>
-         
+            {/* <Link href="profile/edit">Edit Profile</Link> */}
           </>
         )}
       </div>
@@ -478,7 +508,14 @@ console.log(profiledata)
               alt="user"
               // fill
             />
-            {!photoUrl && <label htmlFor="photo" className='bg-[#65696B] rounded-md px-4 py-3 text-white '  >Change Photo</label>}
+            {!photoUrl && (
+              <label
+                htmlFor="photo"
+                className="bg-[#65696B] rounded-md px-4 py-3 text-white "
+              >
+                Change Photo
+              </label>
+            )}
             <input
               type="file"
               id="photo"
@@ -504,7 +541,7 @@ console.log(profiledata)
               <div>
                 <div className="flex space-x-5 ">
                   <fieldset className="w-1/2">
-                    <label htmlFor="firstName">First Name</label>
+                    <label htmlFor="firstName">Personal Name</label>
                     <div>
                       <input
                         type="text"
@@ -517,19 +554,30 @@ console.log(profiledata)
                     </div>
                   </fieldset>
                   <fieldset className="w-1/2">
-                    <label htmlFor="lastName">Last Name</label>
+                    <label htmlFor="lastName">Name</label>
                     <div>
                       <input
                         type="text"
-                        name="lastName"
-                        value={profileData.lastName}
+                        name="name"
+                        value={profileData.name}
                         onChange={updateProfileData}
                         className="outline-none border px-5  border-1 border-gray-600 rounded-2xl w-full py-6"
                       />
                     </div>
                   </fieldset>
                 </div>
-
+                <fieldset className="mt-14">
+                  <label htmlFor="lastName">Personal role</label>
+                  <div>
+                    <input
+                      type="text"
+                      name="lastName"
+                      value={profileData.lastName}
+                      onChange={updateProfileData}
+                      className="outline-none border px-5  border-1 border-gray-600 rounded-2xl w-full py-6"
+                    />
+                  </div>
+                </fieldset>
                 <fieldset className="mt-14">
                   <label htmlFor="email">Email</label>
                   <input
@@ -541,27 +589,60 @@ console.log(profiledata)
                   />
                 </fieldset>
                 <fieldset className="mt-14">
-                  <label htmlFor="gender">Gender</label>
-                  <select
+                  <label htmlFor="gender">Type</label>
+                  <input
+                    type="text"
                     name="gender"
-                    id="gender"
                     value={profileData.gender}
                     onChange={updateProfileData}
                     className="outline-none px-5  border border-1 border-gray-600 rounded-2xl w-full py-6"
-                  >
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                    <option value="others">Others</option>
-                  </select>
+                  />
                 </fieldset>
+                <fieldset className="mt-14">
+                  <label htmlFor="lastName">Country</label>
+                  <div>
+                    <input
+                      type="text"
+                      name="country"
+                      value={profileData.country}
+                      onChange={updateProfileData}
+                      className="outline-none border px-5  border-1 border-gray-600 rounded-2xl w-full py-6"
+                    />
+                  </div>
+                </fieldset>{" "}
+                <fieldset className="mt-14">
+                  <label htmlFor="lastName">City</label>
+                  <div>
+                    <input
+                      type="text"
+                      name="city"
+                      value={profileData.city}
+                      onChange={updateProfileData}
+                      className="outline-none border px-5  border-1 border-gray-600 rounded-2xl w-full py-6"
+                    />
+                  </div>
+                </fieldset>
+                <fieldset className="mt-14">
+                  <label htmlFor="lastName">State</label>
+                  <div>
+                    <input
+                      type="text"
+                      name="state"
+                      value={profileData.state}
+                      onChange={updateProfileData}
+                      className="outline-none border px-5  border-1 border-gray-600 rounded-2xl w-full py-6"
+                    />
+                  </div>
+                </fieldset>{" "}
+        
+             
               </div>
-              <button 
-              className="bg-[#2f4858] text-white w-[12rem] rounded-md mt-4 text-[14px] py-4 "
-              
-              >Save Changes</button>
+              <button className="bg-[#2f4858] text-white w-[12rem] rounded-md mt-4 text-[14px] py-4 ">
+                Save Changes
+              </button>
             </form>
-            <fieldset className="mt-6">
-              <p htmlFor="">About me</p>
+            {/* <fieldset className="mt-6">
+              <p htmlFor="">type</p>
               <textarea
                 value={about}
                 onChange={(e) => setAbout(e.target.value)}
@@ -576,7 +657,7 @@ console.log(profiledata)
               >
                 Update
               </button>
-            </div>
+            </div> */}
           </div>
         </div>
       </Modal>

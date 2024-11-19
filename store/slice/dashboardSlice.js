@@ -7,7 +7,11 @@ import {
   dashboard,
   profile,
   order,
-  orderId
+  orderId,
+  updateAccountInformation,
+  uploadProfile,
+  requestWithdrawal,
+  requesthistoryWithdrawal
 } from "@/services/customer";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
@@ -24,6 +28,38 @@ export const orderinfo = createAsyncThunk(
   `customer/orderinfo`,
   async (payload) => {
     const response = await order();
+    return response.data;
+  }
+);
+
+export const createbankinfo = createAsyncThunk(
+  `customer/createbankinfo`,
+  async (payload) => {
+    const response = await updateAccountInformation(payload);
+    return response.data;
+  }
+);
+
+export const editprofileinfo = createAsyncThunk(
+  `customer/editprofileinfo`,
+  async (payload) => {
+    const response = await uploadProfile(payload);
+    return response.data;
+  }
+);
+
+export const withdrawreq = createAsyncThunk(
+  `customer/withdrawreq`,
+  async (payload) => {
+    const response = await requestWithdrawal(payload);
+    return response.data;
+  }
+);
+
+export const withhistorydrawreq = createAsyncThunk(
+  `customer/withhistorydrawreq`,
+  async (payload) => {
+    const response = await requesthistoryWithdrawal();
     return response.data;
   }
 );
@@ -58,6 +94,10 @@ const initialState = {
     data: null,
   },
   profiledata: {
+    loading: true,
+    data: null,
+  },
+  withdrawhistory: {
     loading: true,
     data: null,
   },
