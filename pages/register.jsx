@@ -32,9 +32,11 @@ const CustomerSignup = () => {
   const [cities, setCities] = useState(null);
   const [formData, setFormData] = useState({
     first_name: "",
+    last_name: "",
     name: "",
     type: "",
     personnel_name: "",
+    business_name: "",
     email: "",
     password: "",
     password_confirmation: "",
@@ -374,11 +376,33 @@ const CustomerSignup = () => {
             </p>
             <fieldset>
               <input
-                name="name"
+                name="business_name"
                 className="text-[16px] text-gray-500 font-semibold outline-none "
                 type="name"
-                placeholder="Company name"
-                value={formData.name}
+                placeholder="Business name"
+                value={formData.business_name}
+                onChange={updateFormData}
+                required
+              />
+            </fieldset>
+            <fieldset>
+              <input
+                name="first_name"
+                className="text-[16px] text-gray-500 font-semibold outline-none "
+                type="name"
+                placeholder="First name"
+                value={formData.first_name}
+                onChange={updateFormData}
+                required
+              />
+            </fieldset>
+            <fieldset>
+              <input
+                name="last_name"
+                className="text-[16px] text-gray-500 font-semibold outline-none "
+                type="name"
+                placeholder="Last name"
+                value={formData.last_name}
                 onChange={updateFormData}
                 required
               />
