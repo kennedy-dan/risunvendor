@@ -20,9 +20,10 @@ export default function Index() {
   const dispatch = useDispatch();
   const { info } = useSelector((state) => state.dashboard);
   const router = useRouter();
-  const tableData = info?.data?.data?.orders
+  const tableData = info?.data?.data?.order_items
 
   console.log(tableData);
+  console.log(info?.data?.data);
 
 
   useEffect(() => {

@@ -17,7 +17,7 @@ const getToken1 = async () => {
 };
 
 const instance = axios.create({
-	baseURL: "https://staging.pekadis.com",
+	baseURL: "https://myartstockapi.treendit.com",
 	headers: {
 		"Content-Type": "application/json",
 		"Access-Control-Allow-Origin": "*",
