@@ -238,9 +238,9 @@ let loading
                   <h2>
                     {" "}
                     &#8358;
-                    {Number(
-                      balance
-                    ).toLocaleString()}
+                    {
+                      balance.split('.')[0]
+                    }
                   </h2>
                   <button className='mt-20'  onClick={() => setModalDisplay(true)}>
                     Withdraw
@@ -296,9 +296,9 @@ let loading
                   <h2>
                     {" "}
                     &#8358;
-                    {Number(
-                      balance
-                    ).toLocaleString()}
+                      {
+                      balance.split('.')[0]
+                    }
                   </h2>
                
                   </div>

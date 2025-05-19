@@ -70,9 +70,9 @@ export default function Index() {
               <div>
                 <p>Wallet Balance</p>
                 <h1>
-                  {Number(
-                   info?.data?.data?.wallet_ballance
-                  ).toLocaleString()}
+                  {
+                   info?.data?.data?.wallet_balance.split('.')[0]
+                  }
                 </h1>
               </div>
 
