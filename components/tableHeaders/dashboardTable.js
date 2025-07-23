@@ -13,7 +13,7 @@ export const columns = [
       console.log(rowData, options);
       return (
         <div className="notranslate">
-          <Link href={`/admin/reservations/details/${rowData?.id}/`}>
+          <Link href={`/admin/reservations/details/${rowData?.order_id}/`}>
             <div> {options.rowIndex + 1}</div>
           </Link>
         </div>
@@ -54,8 +54,10 @@ export const columns = [
     field: "number",
     header: "Customer Name",
     // isSort: true,
-    // body: 'yes',
-    filter: true,
+    body: (rowData) => {
+      console.log(rowData.id);
+      return <p>{rowData?.customer?.first_name + "  " + rowData?.customer?.last_name}</p>;
+    },    filter: true,
   },
 
   {
@@ -71,7 +73,7 @@ export const columns = [
 
   {
     body: (rowData) => {
-      return new Date(rowData?.created_at).toLocaleDateString();
+      return new Date(rowData?.date_assigned).toLocaleDateString();
     },
     header: "Date Assigned",
     // isSort: true,
@@ -91,7 +93,7 @@ export const columns = [
     field: "has_food",
     filter: true,
     body: (rowData) => {
-      return <p>{rowData?.purchase_price}</p>;
+      return <p>{rowData?.total_amount}</p>;
     },
   },
 

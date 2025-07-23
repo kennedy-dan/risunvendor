@@ -23,7 +23,7 @@ const Order = () => {
   const dispatch = useDispatch()
   const { order } = useSelector((state) => state.dashboard);
   const tableDatas = order?.data?.data
-  const tableData = tableDatas?.map(order => order.items).flat();
+  // const tableData = tableDatas?.map(order => order.items).flat();
   useEffect(() => {
     
   dispatch(orderinfo())
@@ -58,7 +58,7 @@ const Order = () => {
           
           <DataTable
             emptyMessage="No approved reservations"
-            value={tableData}
+            value={tableDatas}
             // header={searchBar}
             // lazy
             // loading={loading}
