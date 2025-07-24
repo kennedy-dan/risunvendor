@@ -128,8 +128,8 @@ const OrderId = () => {
           </div>
         )}
 
-           {orderItems?.map((items) => (
-              <div className="flex justify-between  ">
+           {orderItems?.map((items, index) => (
+              <div key={index} className="flex justify-between  ">
                 {items?.product_type === "Asset" && (
                   <>
                     <div className="flex h-full  mb-[70px] ">
