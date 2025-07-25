@@ -24,8 +24,8 @@ const OrderId = () => {
   return (
     <ContributorLayout title="Order details">
       <div>
-        <p>Order details</p>
-        {orderItems.length > 0 && (
+        <p className="font-bold text-[20px] mb-20 md:text-[39px]" >Order details</p>
+        {/* {orderItems.length > 0 && (
           <div className="flex space-x-6">
             <div>
               <img src="/images/orddet.png" />
@@ -126,7 +126,7 @@ const OrderId = () => {
               </div>
             </div>
           </div>
-        )}
+        )} */}
 
            {orderItems?.map((items, index) => (
               <div key={index} className="flex justify-between  ">
@@ -166,11 +166,15 @@ const OrderId = () => {
                             </p>
                           )}
                         </div>
-                        {/* <div>
+                        <div>
                           <p className="text-[16px] mt-4 text-gray-700">
                             Author
                           </p>
-                        </div> */}
+                        </div>
+                             <div className="mt-20">
+                          <p className='font-medium text-[18px]' >Delivery Details</p>
+                          <p className='text-gray-600 text-[16px]'>Email Address: {orderId?.data?.data?.email} </p>
+                        </div>
                         {/* <div>
                           <p className="text-[16px] mt-4 text-gray-700">
                             Photo Area
@@ -238,6 +242,11 @@ const OrderId = () => {
                               status: {orderId?.data?.data?.status}
                             </p>
                           )}
+                        </div>
+
+                        <div className="mt-20">
+                          <p className='font-medium text-[18px]' >Delivery Details</p>
+                          <p className='text-gray-600 text-[16px]'>Email Address: {orderId?.data?.data?.email} </p>
                         </div>
                       </div>
                     </div>
@@ -318,6 +327,10 @@ const OrderId = () => {
                               status: {orderId?.data?.data?.status}
                             </p>
                           )}
+                        </div>
+                             <div className="mt-20">
+                          <p className='font-medium text-[18px]' >Delivery Details</p>
+                          <p className='text-gray-600 text-[16px]'>Email Address: {orderId?.data?.data?.email} </p>
                         </div>
                       </div>
                     </div>
@@ -427,6 +440,10 @@ const OrderId = () => {
                               status: {orderId?.data?.data?.status}
                             </p>
                           )}
+                        </div>
+                             <div className="mt-20">
+                          <p className='font-medium text-[18px]' >Delivery Details</p>
+                          <p className='text-gray-600 text-[16px]'>Email Address: {orderId?.data?.data?.email} </p>
                         </div>
                       </div>
                     </div>

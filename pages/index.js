@@ -14,17 +14,23 @@ import ContributorLayout from "@/components/ContributorLayout";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { columns } from "@/components/tableHeaders/dashboardTable";
-import { dashboardinfo } from "@/store/slice/dashboardSlice";
+import { dashboardinfo, orderinfo } from "@/store/slice/dashboardSlice";
 
 export default function Index() {
   const dispatch = useDispatch();
   const { info } = useSelector((state) => state.dashboard);
+    const { order } = useSelector((state) => state.dashboard);
+  
   const router = useRouter();
   const tableData = info?.data?.data?.order_items
+  const tableDatas = order?.data?.data
 
   console.log(tableData);
   console.log(info?.data?.data);
-
+  useEffect(() => {
+    
+  dispatch(orderinfo())
+  }, [])
 
   useEffect(() => {
     dispatch(dashboardinfo());
@@ -145,7 +151,7 @@ export default function Index() {
 
           <DataTable
             emptyMessage="No approved reservations"
-            value={tableData}
+            value={tableDatas}
             // header={searchBar}
             // lazy
             // loading={loading}
