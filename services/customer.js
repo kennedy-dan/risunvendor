@@ -54,3 +54,16 @@ export function updateAccountInformation(payload) {
 export function updatePassword(payload) {
   return axios.post(`/account/settings/update-password`, payload);
 }
+
+export function getbanks() {
+  return axios.get(`/user/banks`, );
+}
+
+export function postbanks(data) {
+  return axios.post(`/user/account/settings/bank-accounts/store`, data );
+}
+
+
+export function getBankingDetails() {
+  return axios.get(`/vendor/account-details`);
+}

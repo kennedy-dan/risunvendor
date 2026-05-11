@@ -29,6 +29,7 @@ let loading
   const [balance, setWalletBalance] = useState("");
   const [initializeOtp, setInitializeOtp] = useState(false);
   const { info } = useSelector((state) => state.dashboard);
+  const [earningsHistory, setEarningsHistory] = useState([]);
 
   const [activeTab, setActiveTab] = useState("earnings");
   const [modalDisplay, setModalDisplay] = useState(false);
@@ -52,10 +53,10 @@ let loading
   useEffect(() => {
     if(info?.data?.data?.wallet_balance){
       setWalletBalance(info?.data?.data?.wallet_balance)
+      setEarningsHistory(info?.data?.data?.earnings_history)
     }
   }, [info]);
 
-  let earningsHistory
   let withdrawalHistory
   function initializeWithdrawal(e) {
     e.preventDefault();
@@ -117,8 +118,8 @@ let loading
           <thead>
             <tr>
               <th>Date</th>
-              <th>Image</th>
-              <th>Product</th>
+              {/* <th>Image</th> */}
+              <th>Type</th>
               <th>Category</th>
               <th>Amount</th>
             </tr>
@@ -127,18 +128,18 @@ let loading
             {earningsHistory
               ?.map((data) => (
                 <tr key={data.id}>
-                  <td>{new Date(data.date_validated).toLocaleDateString()}</td>
-                  <td>
+                  <td>{new Date(data.created_at).toLocaleDateString()}</td>
+                  {/* <td>
                     <Image
                       src={data.asset?.image?.public_url || NoImagePlaceholder}
                       alt="user"
                       width={100}
                       height={100}
                     />
-                  </td>
-                  <td>{data.asset.title}</td>
-                  <td>{data.asset.category}</td>
-                  <td>₦{Number(data.purchase_amount).toLocaleString()}</td>
+                  </td> */}
+                  <td>{data?.type}</td>
+                  <td>{data?.source?.detail?.product}</td>
+                  <td>₦{data?.amount}</td>
                 </tr>
               ))
               .reverse()}
@@ -201,13 +202,13 @@ let loading
             <div className={styles.summary}>
               <h1>Overview</h1>
               <div>
-                {earningsHistory?.length > 0 && (
+                {/* {earningsHistory?.length > 0 && (
                   <div className={styles.chart}>
                     <LineChart
                       datasetIdKey="pie-chart"
                       data={{
                         labels: earningsHistory.map((data) =>
-                          new Date(data.date_validated).toLocaleDateString()
+                          new Date(data.created_at).toLocaleDateString()
                         ),
                         datasets: [
                           {
@@ -230,7 +231,7 @@ let loading
                       }}
                     />
                   </div>
-                )}
+                )} */}
                 
                 <div className={`${styles.withdraw} justify-between `}>
                   <div className="flex flex-col justify-between " >

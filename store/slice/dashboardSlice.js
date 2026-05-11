@@ -11,7 +11,10 @@ import {
   updateAccountInformation,
   uploadProfile,
   requestWithdrawal,
-  requesthistoryWithdrawal
+  requesthistoryWithdrawal,
+  getbanks,
+  postbanks,
+  getBankingDetails
 } from "@/services/customer";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
@@ -80,6 +83,30 @@ export const profileinfo = createAsyncThunk(
   }
 );
 
+export const _banks = createAsyncThunk(
+  "/_banks",
+  async (payload) => {
+    const response = await getbanks();
+    return response.data;
+  }
+);
+
+export const _banksdet = createAsyncThunk(
+  "/_banksdet",
+  async (payload) => {
+    const response = await getBankingDetails();
+    return response.data;
+  }
+);
+
+export const _postbanks = createAsyncThunk(
+  "/_postbanks",
+  async (payload) => {
+    const response = await postbanks(payload);
+    return response.data;
+  }
+);
+
 const initialState = {
   info: {
     loading: true,
@@ -100,6 +127,14 @@ const initialState = {
   withdrawhistory: {
     loading: true,
     data: null,
+  },
+   bnk: {
+    data: null,
+    loading: true,
+  }, 
+   bnkdet: {
+    data: null,
+    loading: true,
   },
 };
 
@@ -151,6 +186,29 @@ export const dashboardSlice = createSlice({
       .addCase(profileinfo.fulfilled, (state, { payload }) => {
         state.profiledata.data = payload;
         state.profiledata.loading = false;
+      });
+
+      builder
+      .addCase(_banks.pending, (state) => {
+        state.bnk.loading = true;
+      })
+      .addCase(_banks.rejected, (state) => {
+        state.bnk.loading = false;
+      })
+      .addCase(_banks.fulfilled, (state, { payload }) => {
+        state.bnk.loading = false;
+        state.bnk.data = payload;
+      });
+      builder
+      .addCase(_banksdet.pending, (state) => {
+        state.bnkdet.loading = true;
+      })
+      .addCase(_banksdet.rejected, (state) => {
+        state.bnkdet.loading = false;
+      })
+      .addCase(_banksdet.fulfilled, (state, { payload }) => {
+        state.bnkdet.loading = false;
+        state.bnkdet.data = payload;
       });
   },
 });

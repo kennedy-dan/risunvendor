@@ -8,13 +8,17 @@ import Link from "next/link";
 import DummyImage from "@/public/images/dummy-image.jpg";
 import ContributorLayout from "@/components/ContributorLayout";
 import styles from "@/styles/contributor/profile/index.module.scss";
-import { Modal } from "antd/lib";
+import { Select, Modal, DatePicker, ConfigProvider } from "antd/lib";
 import { toast } from "react-toastify";
 import { EyeOff, EyeOn, LeftArrow } from "@/public/svgs/icons";
 import {
   profileinfo,
   createbankinfo,
   editprofileinfo,
+   _postbanks,
+  _banksdet,
+  _banks,
+
 } from "@/store/slice/dashboardSlice";
 
 // import {
@@ -31,8 +35,10 @@ export default function Index() {
   const dispatch = useDispatch();
   //   const { data, loading } = useSelector((state) => state.contributor);
   //   const fetcher = (url) => axios.get(url).then(({ data }) => data.data);
-  const { profiledata } = useSelector((state) => state.dashboard);
-
+  const { profiledata, bnkdet, bnk } = useSelector((state) => state.dashboard);
+  const banknamesdet = bnkdet?.data?.data;
+const banknames = bnk?.data?.data;
+  // console.log(bankData.bankName);
   let data;
   const [photoUrl, setPhotoUrl] = useState(null);
   const [photo, setPhoto] = useState(null);
@@ -70,6 +76,12 @@ export default function Index() {
     street: "",
   });
 
+    useEffect(() => {
+    // dispatch(_updateContributoraccount());
+    dispatch(_banks());
+    // dispatch(_banksdet());
+  }, []);
+
   useEffect(() => {
     setBankData({
       bankName: profiledata?.data?.data?.bank_account?.bank_name,
@@ -79,11 +91,27 @@ export default function Index() {
   }, [profiledata]);
 
   function updateBankData(e) {
-    const { value, name } = e.target;
-    setBankData({
-      ...bankData,
-      [name]: value,
-    });
+    if (typeof e === "object") {
+      // Handle event from regular inputs
+      const { value: inputValue, name } = e.target;
+      setBankData({
+        ...bankData,
+        [name]: inputValue,
+      });
+    } else {
+      // Handle Select component value
+      const selectedBank = banknames?.find((bank) => bank.name === e);
+      setBankData({
+        ...bankData,
+        bankName: selectedBank?.name,
+      });
+    }
+    // console.log(e)
+    // const { value, name } = e.target;
+    // setBankData({
+    //   ...bankData,
+    //   [name]: value,
+    // });
   }
 
   function updatePasswordData(e) {
@@ -164,7 +192,7 @@ export default function Index() {
     console.log("done");
     dispatch(_updateContributorData({ profile_overview: about }));
   };
-
+{console.log("done", bankData.bankName)}
   function handleBankUpdate(e) {
     e.preventDefault();
     const payload = {
@@ -214,9 +242,50 @@ export default function Index() {
           <p className="text-gray-500 text-[15px] font-semibold ">
             BANK DETAILS
           </p>
-          <div>
+   <div>
             <p className="text-[14px]">Bank Name</p>
-            <input
+            <ConfigProvider
+                theme={{
+                  components: {
+                    Select: {
+                      optionSelectedFontWeight: 600,
+                    },
+                  },
+                  // ...customTheme,
+                  token: {
+                    borderRadius: 7,
+                    controlHeight: 60,
+                    colorBgContainer: "#f0f0f0",
+                    fontSize: 16,
+                    // optionSelectedFontWeight: 300
+                  },
+                }}
+              >
+                <Select
+                  // styles={customSelectStyles}
+                  id="bankName"
+                  name="bankName"
+                  placeholder=""
+                  className={` w-full`}
+                  // defaultValue={upformData.state || ''}
+                  showSearch
+                  // value={upformData.state || ''} // Bind to formData.state_id
+                  defaultValue={bankData.bankName || ''}
+
+                  options={banknames?.map((location) => ({
+                    value: location.name,
+                    label: location.name,
+                  }))}
+                  onChange={updateBankData}
+                  isClearable
+                  filterOption={(input, option) =>
+                    option?.label?.toLowerCase().includes(input.toLowerCase())
+                  }
+                  classNamePrefix="react-select"
+                />
+                
+              </ConfigProvider>
+            {/* <input
               className="outline-none border border-1 px-3 text-[15px] border-gray-600 rounded-2xl w-full py-7 "
               // value={bankingDetails?.bank_name}
               type="text"
@@ -224,9 +293,9 @@ export default function Index() {
               name="bankName"
               value={bankData.bankName}
               onChange={updateBankData}
-            />
+              // defaultValue={banknamesdet && banknamesdet[0]?.bank_name}
+            /> */}
           </div>
-
           <div>
             <p className="text-[14px]">Account number</p>
             <input
