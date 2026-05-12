@@ -100,9 +100,8 @@ export const columns = [
   {
     body: (rowData) => {
       console.log(rowData.id);
-      return <p>{rowData?.items[0]?.assigned_to?.status === null ? <p className="text-yellow-500">pending</p> : rowData?.items[0]?.assigned_to?.status}</p>;
+      return <p>{rowData?.status}</p>;
     },
-    header: "Status",
     field: "deposit_paid",
     filter: true,
   },

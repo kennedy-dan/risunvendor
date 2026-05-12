@@ -69,8 +69,8 @@ const OrderId = () => {
       const response = await axios.post(
         `/vendor/orders/${id}/complete`
       );
-      
-      if (response.data.success) {
+      console.log(response)
+      if (response.status === 200) {
         // Refresh order data
         await dispatch(orderinfoId(id));
         setShowCompleteModal(false);
