@@ -26,119 +26,105 @@ export default function ContributorLayout({ title, children }) {
   const { pathname } = useRouter();
   const [activeSub, setActiveSub] = useState(null);
   const [mobileNav, setMobileNav] = useState(false);
+  
   const links = [
     {
       title: "dashboard",
       url: "/",
       icon: <icons.Dashboard />,
     },
-  
     {
       title: "Order",
       url: "/orders",
       icon: <icons.Earnings />,
     },
-    // { title: "profile", url: "/contributor/profile", icon: <icons.Profile /> },
     {
       title: "Wallet",
       url: "/wallet",
-      icon: <icons.SubContributor />,
+      icon: <icons.WalletIcon />,
     },
   ];
+  
   useOnClickOutside(mobileNavRef, () => setMobileNav(false));
 
   useEffect(() => {
-    
     if(!token) {
       router.push('/login')
     }
   }, [token])
   
+  // Helper function to check if link is active
+  const isLinkActive = (linkUrl) => {
+    if (linkUrl === "/" && pathname === "/") return true;
+    if (linkUrl !== "/" && pathname.startsWith(linkUrl)) return true;
+    return false;
+  };
 
   return (
-    <section className={styles.container}>
+    <section className="flex min-h-screen bg-gray-50">
       {width > 720 && (
         <>
           <div
             style={{ width: "calc((100vw - 1600px)/2)" }}
-            className="fixed top-0 left-0 -z-[1] h-screen bg-[var(--bg-tertiary)]"
+            className="fixed top-0 left-0 -z-[1] h-screen bg-gray-100"
           />
-          <nav className={styles["desktop-nav"]}>
-            <Logo />
-            <ul>
+          <nav className="fixed left-0 top-0 h-screen w-[280px] bg-white border-r border-gray-200 flex flex-col shadow-sm">
+            <div className="p-6">
+              <Logo />
+            </div>
+            <ul className="flex-1 px-4 py-6 space-y-3"> {/* Increased space-y-1 to space-y-3 */}
               {links?.map((link) => (
                 <Fragment key={link.url}>
-                  <li className={` text-[14px]  ${pathname === link.url ? styles.active : null}`}>
-                    <Link href={link.url}>
-                      {link.icon}
-                      {link.title}
+                  <li className="w-full">
+                    <Link 
+                      href={link.url} 
+                      className={`flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 ${
+                        isLinkActive(link.url) 
+                          ? 'bg-primary-50 text-primary-600 shadow-sm border-l-4 border-primary-600' 
+                          : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                      }`}
+                    >
+                      <span className={` transition-colors ${
+                        isLinkActive(link.url) ? 'text-primary-600' : ''
+                      }`}>
+                        {link.icon}
+                      </span>
+                      <span className="capitalize text-lg px-3 font-medium">{link.title}</span>
+                      {isLinkActive(link.url) && (
+                        <span className="ml-auto w-1.5 h-1.5 rounded-full bg-primary-600"></span>
+                      )}
                     </Link>
-                    {/* {link.sub &&
-                      (activeSub ? (
-                        <ChevronUp
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setActiveSub(null);
-                          }}
-                          className="absolute w-6 h-6 -translate-y-1/2 right-8 top-1/2"
-                        />
-                      ) : (
-                        <ChevronDown
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setActiveSub(link.url);
-                          }}
-                          className="absolute w-6 h-6 -translate-y-1/2 right-8 top-1/2"
-                        />
-                      ))} */}
                   </li>
-                  {link.sub &&
-                    true &&
-                    // activeSub === link.url &&
-                    link.sub.map((sub) => (
-                      <li
-                        className={pathname === sub.url ? styles.active : null}
-                        key={link.sub.url}
-                        onClick={() => setActiveSub(null)}
-                        style={{
-                          backgroundColor: "#27272a",
-                          // borderRadius: '6px'
-                        }}
-                      >
-                        <Link
-                          className="!py-4 !pl-28 text-[1.3rem]"
-                          href={sub.url}
-                        >
-                          {sub.title}
-                        </Link>
-                      </li>
-                    ))}
                 </Fragment>
               ))}
             </ul>
-            <div
- onClick={() => {
-  dispatch(logOutCustomer());
-  router.push("/login");
-}}              className="mt-auto mb-4 ml-4 text-xl text-red-600 hover:underline"
-            >
-              Log out 
+            <div className="mt-auto p-4 pb-6 pt-6 border-t border-gray-100"> {/* Added border-top for separation */}
+              <button
+                onClick={() => {
+                  dispatch(logOutCustomer());
+                  router.push("/login");
+                }}
+                className="w-full text-xl text-left px-4 py-3 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
+              >
+                Log out
+              </button>
             </div>
           </nav>
         </>
       )}
+      
       {width <= 720 && (
-        <nav className={styles["mobile-nav"]}>
+        <nav className="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 z-50 px-4 py-3 flex items-center shadow-sm">
           <Logo />
           {!mobileNav && (
             <ChevronDown
-              className="w-10 h-10 ml-auto stroke-white"
+              className="w-6 h-6 ml-auto stroke-gray-600 cursor-pointer"
               onClick={() => setMobileNav(true)}
             />
           )}
           {mobileNav && (
             <ChevronUp
-              className="w-10 h-10 ml-auto stroke-white"
+              className="w-6 h-6 ml-auto stroke-gray-600 cursor-pointer"
               onClick={() => setMobileNav(false)}
             />
           )}
@@ -153,83 +139,80 @@ export default function ContributorLayout({ title, children }) {
                 }}
                 transition={{ type: "tween" }}
                 ref={mobileNavRef}
+                className="absolute top-full left-0 right-0 bg-white border-b border-gray-200 shadow-lg overflow-hidden"
               >
                 {links?.map((link) => (
                   <Fragment key={link.url}>
                     <li
-                      className={pathname === link.url ? styles.active : null}
-                      style={link.sub ? { position: "relative" } : null}
+                      className={`border-b border-gray-100 last:border-b-0 ${
+                        isLinkActive(link.url) ? 'bg-primary-50' : ''
+                      }`}
                       onClick={() => setMobileNav(false)}
                     >
-                      <Link href={link.url}>
-                        {link.icon}
-                        {link.title}
+                      <Link 
+                        href={link.url} 
+                        className={`flex items-center gap-3 px-6 py-4 transition-colors ${
+                          isLinkActive(link.url) 
+                            ? 'text-primary-600 font-semibold' 
+                            : 'text-gray-700'
+                        }`}
+                      >
+                        <span className={`w-5 h-5 ${
+                          isLinkActive(link.url) ? 'text-primary-600' : ''
+                        }`}>
+                          {link.icon}
+                        </span>
+                        <span className="capitalize font-medium">{link.title}</span>
+                        {isLinkActive(link.url) && (
+                          <span className="ml-auto text-xs text-primary-600">●</span>
+                        )}
                       </Link>
-                      {link.sub &&
-                        (activeSub ? (
-                          <ChevronUp
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setActiveSub(null);
-                            }}
-                            className="absolute w-6 h-6 bg-red-700 -translate-y-1/2 right-8 top-1/2"
-                          />
-                        ) : (
-                          <ChevronDown
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setActiveSub(link.url);
-                            }}
-                            className="absolute w-6 h-6 -translate-y-1/2 right-8 top-1/2"
-                          />
-                        ))}
                     </li>
-                    {link.sub &&
-                      activeSub === link.url &&
-                      link.sub.map((sub) => (
-                        <li
-                          key={link.sub.url}
-                          onClick={() => setActiveSub(null)}
-                          className="bg-zinc-800"
-                        >
-                          <Link
-                            className="!py-4 !pl-32 text-[1.3rem]"
-                            href={sub.url}
-                          >
-                            {sub.title}
-                          </Link>
-                        </li>
-                      ))}
                   </Fragment>
                 ))}
+                <li className="border-t border-gray-200 mt-2"> {/* Added margin-top for separation */}
+                  <button
+                    onClick={() => {
+                      dispatch(logOutCustomer());
+                      router.push("/login");
+                    }}
+                    className="w-full text-lg text-left px-6 py-4 text-red-600 font-medium"
+                  >
+                    Log out
+                  </button>
+                </li>
               </motion.ul>
             )}
           </AnimatePresence>
         </nav>
       )}
-      <div>
-        <header>
-          <h1>{title}</h1>
-            <div>
-          <Link href='/profile' className='flex space-x-3' >
-
-            <Image
-              src={data?.user?.profile_image || DummyImage}
-              alt="user"
-              width={40}
-              height={40}
-            />
-            <h3>
-              {user?.first_name}
-              <br />
-              <span>Contributor</span>
-            </h3>
-          </Link>
-
+      
+      <div className={`flex-1 ${width > 720 ? 'ml-[280px]' : 'mt-[64px]'}`}>
+        <header className="bg-white border-b border-gray-200 px-8 py-6 flex justify-between items-center">
+          <h1 className="text-2xl font-semibold text-gray-900 capitalize">{title}</h1>
+          <div>
+            <Link href='/profile' className='flex items-center space-x-3 group'>
+              <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-gray-200 group-hover:border-gray-300 transition-colors">
+                <Image
+                  src={data?.user?.profile_image || DummyImage}
+                  alt="user"
+                  width={40}
+                  height={40}
+                  className="object-cover"
+                />
+              </div>
+              <div>
+                <h3 className="text-sm font-medium text-gray-900">
+                  {user?.first_name || 'User'}
+                </h3>
+                <span className="text-xs text-gray-500">Contributor</span>
+              </div>
+            </Link>
           </div>
-        
         </header>
-        <div>{children}</div>
+        <main className="p-8">
+          {children}
+        </main>
       </div>
     </section>
   );
@@ -242,7 +225,7 @@ function ChevronUp(props) {
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"
-      strokeWidth={4}
+      strokeWidth={2}
       stroke="currentColor"
     >
       <path
@@ -261,7 +244,7 @@ function ChevronDown(props) {
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"
-      strokeWidth={4}
+      strokeWidth={2}
       stroke="currentColor"
     >
       <path

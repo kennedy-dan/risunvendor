@@ -65,7 +65,7 @@ export const columns = [
     header: "Product Details",
     body: (rowData) => {
       console.log(rowData.id);
-      return <p>{rowData?.deliverable?.title}</p>;
+      return <p>{rowData?.items[0]?.deliverable?.title}</p>;
     },
     field: "reserved_start_time",
     filter: true,
@@ -73,7 +73,7 @@ export const columns = [
 
   {
     body: (rowData) => {
-      return new Date(rowData?.date_assigned).toLocaleDateString();
+      return new Date(rowData?.created_at).toLocaleDateString();
     },
     header: "Date Assigned",
     // isSort: true,
@@ -81,26 +81,26 @@ export const columns = [
     filter: true,
   },
 
-  {
-    //   body: depositPaid,
-    header: "Due Date",
-    field: "deposit_paid",
-    filter: true,
-  },
+  // {
+  //   //   body: depositPaid,
+  //   header: "Due Date",
+  //   field: "deposit_paid",
+  //   filter: true,
+  // },
   {
     header: "Amount",
     // isSort: true,
     field: "has_food",
     filter: true,
     body: (rowData) => {
-      return <p>{rowData?.total_amount}</p>;
+      return <p>N{rowData?.total_amount}</p>;
     },
   },
 
   {
     body: (rowData) => {
       console.log(rowData.id);
-      return <p>{rowData?.assigned_to?.status}</p>;
+      return <p>{rowData?.items[0]?.assigned_to?.status === null ? <p className="text-yellow-500">pending</p> : rowData?.items[0]?.assigned_to?.status}</p>;
     },
     header: "Status",
     field: "deposit_paid",
