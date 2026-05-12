@@ -15,13 +15,12 @@ import { logOutCustomer } from "@/store/slice/authSlice";
 export default function ContributorLayout({ title, children }) {
   const mobileNavRef = useRef(null);
   const router = useRouter();
-  const { token } = useSelector((state) => state.auth);
+  const { token, user } = useSelector((state) => state.auth);
 
   const { width } = useWindowDimension();
   const dispatch = useDispatch()
   // const { user } = useSelector((state) => state.auth);
   // const { data } = useSelector((state) => state.contributor);
-  let user
   let data
   const { pathname } = useRouter();
   const [activeSub, setActiveSub] = useState(null);
@@ -203,9 +202,9 @@ export default function ContributorLayout({ title, children }) {
               </div>
               <div>
                 <h3 className="text-sm font-medium text-gray-900">
-                  {user?.first_name || 'User'}
+                  {user?.name || 'User'}
                 </h3>
-                <span className="text-xs text-gray-500">Contributor</span>
+                <span className="text-lg text-gray-500">Vendor</span>
               </div>
             </Link>
           </div>

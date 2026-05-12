@@ -1,461 +1,371 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import ContributorLayout from "@/components/ContributorLayout";
 import { useRouter } from "next/router";
 import { useSelector, useDispatch } from "react-redux";
 import { orderinfoId } from "@/store/slice/dashboardSlice";
+import { 
+  ShoppingBag, 
+  Truck, 
+  CreditCard, 
+  MapPin, 
+  Mail, 
+  Phone,
+  CheckCircle,
+  Clock,
+  Package,
+  ArrowLeft
+} from "lucide-react";
 
 const OrderId = () => {
   const router = useRouter();
   const { orderId } = useSelector((state) => state.dashboard);
   const { id } = router.query;
   const dispatch = useDispatch();
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     if (id) {
       dispatch(orderinfoId(id));
+      setLoading(false);
     }
   }, [id]);
 
-  console.log(orderId.data, "orderId data");
+  const orderData = orderId?.data?.data;
+  const orderItems = orderData?.order_items_detailed || orderData?.order_items || [];
 
-  const orderItems = orderId?.data?.data?.order_items || [];
+  const getStatusColor = (status) => {
+    switch(status?.toLowerCase()) {
+      case 'paid':
+        return 'bg-green-100 text-green-800 border-green-200';
+      case 'pending':
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'cancelled':
+        return 'bg-red-100 text-red-800 border-red-200';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
 
-  console.log(orderItems, "orderItems");
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat('en-NG', {
+      style: 'currency',
+      currency: 'NGN',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(price);
+  };
+
+  const OrderSummary = () => (
+    <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-2xl p-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="flex items-center space-x-3">
+          <div className="bg-white p-3 rounded-full shadow-md">
+            <Package className="w-6 h-6 text-purple-600" />
+          </div>
+          <div>
+            <p className="text-sm text-gray-500">Order ID</p>
+            <p className="font-semibold text-gray-800">#{orderData?.sku?.slice(0, 8)}</p>
+          </div>
+        </div>
+        
+        <div className="flex items-center space-x-3">
+          <div className="bg-white p-3 rounded-full shadow-md">
+            <CreditCard className="w-6 h-6 text-purple-600" />
+          </div>
+          <div>
+            <p className="text-sm text-gray-500">Total Amount</p>
+            <p className="font-bold text-xl text-purple-600">{formatPrice(orderData?.total_amount)}</p>
+          </div>
+        </div>
+        
+        <div className="flex items-center space-x-3">
+          <div className="bg-white p-3 rounded-full shadow-md">
+            {orderData?.status === 'paid' ? (
+              <CheckCircle className="w-6 h-6 text-green-600" />
+            ) : (
+              <Clock className="w-6 h-6 text-yellow-600" />
+            )}
+          </div>
+          <div>
+            <p className="text-sm text-gray-500">Status</p>
+            <span className={`inline-flex px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(orderData?.status)}`}>
+              {orderData?.status?.toUpperCase()}
+            </span>
+          </div>
+        </div>
+        
+        {/* <div className="flex items-center space-x-3">
+          <div className="bg-white p-3 rounded-full shadow-md">
+            <Truck className="w-6 h-6 text-purple-600" />
+          </div>
+          <div>
+            <p className="text-sm text-gray-500">Delivery Fee</p>
+            <p className="font-semibold text-gray-800">{formatPrice(orderData?.delivery_fee)}</p>
+          </div>
+        </div> */}
+      </div>
+    </div>
+  );
+
+  const DeliveryInfo = () => (
+    <div className="bg-white rounded-2xl shadow-lg p-6 mb-8 border border-gray-100">
+      <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
+        <Truck className="w-5 h-5 mr-2 text-purple-600" />
+        Delivery Information
+      </h3>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="flex items-start space-x-3">
+          <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />
+          <div>
+            <p className="text-sm text-gray-500">Delivery Address</p>
+            <p className="text-gray-800">
+              {orderData?.billing_address?.street}, {orderData?.billing_address?.city}, 
+              {orderData?.billing_address?.state}, {orderData?.billing_address?.country}
+            </p>
+          </div>
+        </div>
+        <div className="flex items-start space-x-3">
+          <Mail className="w-5 h-5 text-gray-400 mt-0.5" />
+          <div>
+            <p className="text-sm text-gray-500">Email Address</p>
+            <p className="text-gray-800">{orderData?.email}</p>
+          </div>
+        </div>
+        <div className="flex items-start space-x-3">
+          <Phone className="w-5 h-5 text-gray-400 mt-0.5" />
+          <div>
+            <p className="text-sm text-gray-500">Phone Number</p>
+            <p className="text-gray-800">{orderData?.phone_number || 'Not provided'}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderAssetItem = (item) => (
+    <div className="flex flex-col md:flex-row justify-between items-start gap-6 p-6 bg-white rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition-shadow">
+      <div className="flex flex-col md:flex-row gap-6 w-full">
+        <div className="md:w-48 h-48 rounded-xl overflow-hidden bg-gray-100">
+          <img
+            src={item?.asset?.meta?.images[0]?.public_url || item?.asset?.images[0]?.public_url}
+            className="w-full h-full object-cover"
+            alt={item?.asset?.title}
+          />
+        </div>
+        <div className="flex-1">
+          <h3 className="text-xl font-bold text-gray-800 mb-2">{item?.asset?.title}</h3>
+          <div className="space-y-2">
+            <p className="text-gray-600">
+              <span className="font-medium">Category:</span> {item?.asset?.meta?.category || item?.asset?.category?.title}
+            </p>
+            <p className="text-gray-600">
+              <span className="font-medium">Author:</span> {item?.asset?.user?.first_name} {item?.asset?.user?.last_name}
+            </p>
+            <p className="text-gray-600">
+              <span className="font-medium">Asset Type:</span> {item?.asset?.meta?.asset_type}
+            </p>
+          </div>
+        </div>
+      </div>
+      <div className="text-left md:text-right w-full md:w-auto">
+        <p className="text-2xl font-bold text-purple-600">{formatPrice(item?.asset?.pricing)}</p>
+      </div>
+    </div>
+  );
+
+  const renderPrintItem = (item) => (
+    <div className="flex flex-col md:flex-row justify-between items-start gap-6 p-6 bg-white rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition-shadow">
+      <div className="flex flex-col md:flex-row gap-6 w-full">
+        <div className="md:w-48 h-48 rounded-xl overflow-hidden bg-gray-100">
+          <img
+            src={item?.deliverable_item_details[0]?.image_url}
+            className="w-full h-full object-cover"
+            alt={item?.canvas?.title}
+          />
+        </div>
+        <div className="flex-1">
+          <h3 className="text-xl font-bold text-gray-800 mb-2">{item?.canvas?.title}</h3>
+          <div className="space-y-2">
+            <p className="text-gray-600">
+              <span className="font-medium">Print Type:</span> {item?.canvas?.type}
+            </p>
+            <p className="text-gray-600">
+              <span className="font-medium">Size:</span> {item?.deliverable_item_details[0]?.size?.size || 
+                `${item?.deliverable_item_details[0]?.size?.height} × ${item?.deliverable_item_details[0]?.size?.width}`}
+            </p>
+            <p className="text-gray-600">
+              <span className="font-medium">Quantity:</span> {item?.deliverable_item_details[0]?.quantity}
+            </p>
+          </div>
+        </div>
+      </div>
+      <div className="text-left md:text-right w-full md:w-auto">
+        <p className="text-2xl font-bold text-purple-600">{formatPrice(item?.purchase_price)}</p>
+      </div>
+    </div>
+  );
+
+  const renderFrameItem = (item) => (
+    <div className="flex flex-col md:flex-row justify-between items-start gap-6 p-6 bg-white rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition-shadow">
+      <div className="flex flex-col md:flex-row gap-6 w-full">
+        <div className="relative md:w-48 h-48">
+          <div className="relative w-full h-full">
+            <img
+              src={item?.frame?.image_url}
+              className="absolute inset-0 w-full h-full object-cover rounded-xl z-0"
+              alt={item?.frame?.title}
+            />
+            <div className="absolute inset-2 z-10 rounded-lg overflow-hidden">
+              <img
+                src={item?.deliverable_item_details[0]?.image_url}
+                className="w-full h-full object-cover"
+                alt="Frame content"
+              />
+            </div>
+          </div>
+        </div>
+        <div className="flex-1">
+          <h3 className="text-xl font-bold text-gray-800 mb-2">{item?.frame?.title}</h3>
+          <div className="space-y-2">
+            <p className="text-gray-600">
+              <span className="font-medium">Frame Size:</span> {item?.deliverable_item_details[0]?.size?.size}
+            </p>
+            <p className="text-gray-600">
+              <span className="font-medium">Orientation:</span> {item?.deliverable_item_details[0]?.orientation || 'Standard'}
+            </p>
+            <p className="text-gray-600">
+              <span className="font-medium">With Mat:</span> {item?.deliverable_item_details[0]?.add_mat ? 'Yes' : 'No'}
+            </p>
+          </div>
+        </div>
+      </div>
+      <div className="text-left md:text-right w-full md:w-auto">
+        <p className="text-2xl font-bold text-purple-600">{formatPrice(item?.purchase_price)}</p>
+      </div>
+    </div>
+  );
+
+  const renderCanvasItem = (item) => (
+    <div className="flex flex-col md:flex-row justify-between items-start gap-6 p-6 bg-white rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition-shadow">
+      <div className="flex flex-col md:flex-row gap-6 w-full">
+        <div className="md:w-48 h-48 rounded-xl overflow-hidden bg-gray-100 relative transform rotate-3">
+          <img
+            src={item?.deliverable_item_details[0]?.image_url}
+            className="w-full h-full object-cover"
+            alt={item?.canvas?.title}
+          />
+        </div>
+        <div className="flex-1">
+          <h3 className="text-xl font-bold text-gray-800 mb-2">{item?.canvas?.title}</h3>
+          <div className="space-y-2">
+            <p className="text-gray-600">
+              <span className="font-medium">Canvas Type:</span> {item?.canvas?.type}
+            </p>
+            <p className="text-gray-600">
+              <span className="font-medium">Size:</span> {item?.deliverable_item_details[0]?.size?.size}
+            </p>
+          </div>
+        </div>
+      </div>
+      <div className="text-left md:text-right w-full md:w-auto">
+        <p className="text-2xl font-bold text-purple-600">{formatPrice(item?.purchase_price)}</p>
+      </div>
+    </div>
+  );
 
   return (
     <ContributorLayout title="Order details">
-      <div>
-        <p className="font-bold text-[20px] mb-20 md:text-[39px]" >Order details</p>
-        {/* {orderItems.length > 0 && (
-          <div className="flex space-x-6">
-            <div>
-              <img src="/images/orddet.png" />
-            </div>
-            <div>
-              <p className="2F4858 text-[#2F4858] md:text-[36px] text-[17px] ">
-                Un-Laughing man Frame
-              </p>
-              <p className="md:text-[20px] text-[16px] mt-6 text-blue-400">
-                ₦22,500
-              </p>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header */}
+        <div className="mb-8">
+          <button
+            onClick={() => router.back()}
+            className="flex items-center space-x-2 text-gray-600 hover:text-purple-600 transition-colors mb-4"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span>Back to Orders</span>
+          </button>
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-800">Order Details</h1>
+          <p className="text-gray-500 mt-2">View and track your order information</p>
+        </div>
 
-              <div className="mt-6">
-                <p className="md:text-[16px] text-[16px] uppercase text-gray-300">
-                  Description
-                </p>
-                <div className="flex md:space-x-20 md:text-[14px] text-[16px]">
-                  <div>
-                    <p>
-                      Type:{" "}
-                      <span className="font-semibold text-[#2F4858]">
-                        Painting
-                      </span>
-                    </p>
-                  </div>
-                  <div>
-                    <p>
-                      Paint Type:{" "}
-                      <span className="font-semibold text-[#2F4858]">
-                        Painting
-                      </span>
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex  md:space-x-20 md:text-[14px] text-[16px] mt-2">
-                  <div>
-                    <p>
-                      Size:{" "}
-                      <span className="font-semibold text-[#2F4858]">
-                        12 by 12ft
-                      </span>
-                    </p>
-                  </div>
-                  <div>
-                    <p>
-                      request:{" "}
-                      <span className="font-semibold text-[#2F4858]">
-                        12 by 12ft
-                      </span>
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <p className="md:text-[16px] text-[16px] uppercase text-gray-300 mt-8">
-                  Delivery Details
-                </p>
-                <div className="flex md:space-x-20 md:text-[14px] text-[16px]">
-                  <div>
-                    <p>
-                      Delivery address:{" "}
-                      <span className="font-semibold text-[#2F4858]">
-                        asherifa, Ogun state
-                      </span>
-                    </p>
-                  </div>
-                  <div>
-                    <p>
-                      Phone:{" "}
-                      <span className="font-semibold text-[#2F4858]">
-                        +234764767367
-                      </span>
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex md:space-x-20 md:text-[14px] text-[16px] mt-3">
-                  <div>
-                    <p>
-                      Size: <span className="font-semibold">12 by 12ft</span>
-                    </p>
-                  </div>
-                  <div>
-                    <p>
-                      Email Address:{" "}
-                      <span className="font-semibold text-[#2F4858]">
-                        risun@gmail.com
-                      </span>
-                    </p>
-                  </div>
-                </div>
-
-                <div className="mt-12">
-                  <img src="/images/ordstat.png" alt="" />
-                </div>
-              </div>
-            </div>
+        {loading ? (
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
           </div>
-        )} */}
+        ) : (
+          <>
+            {/* Order Summary */}
+            <OrderSummary />
 
-           {orderItems?.map((items, index) => (
-              <div key={index} className="flex justify-between  ">
-                {items?.product_type === "Asset" && (
-                  <>
-                    <div className="flex h-full  mb-[70px] ">
-                      <div className="w-[5]">
-                        <img
-                          src={items?.asset?.meta?.images[0]?.public_url}
-                          className="w-[390px] h-[403px] bg-cover "
-                          alt=""
-                        />
-                      </div>
+            {/* Delivery Information */}
+            <DeliveryInfo />
 
-                      <div className="ml-8">
-                        <p className="text-[18px] font-bold">
-                          {items?.asset?.title}
-                        </p>
-                        <div>
-                          <p className="text-[16px] mt-4 text-gray-700">
-                            Category : {items?.asset?.meta?.category}
-                          </p>
-                        </div>
-                        <div className='mt-4' > 
-                          {orderId?.data?.data?.status === "paid" ? (
-                            <div className="flex space-x-3  items-center">
-                              <div>
-                                <img src="/images/successch.png" />
-                              </div>
-                              <p className="text-[16px] text-gray-700">
-                                Successful
-                              </p>
-                            </div>
-                          ) : (
-                            <p className="text-[16px] mt-4 text-gray-700">
-                              status: {orderId?.data?.data?.status}
-                            </p>
-                          )}
-                        </div>
-                        <div>
-                          <p className="text-[16px] mt-4 text-gray-700">
-                            Author
-                          </p>
-                        </div>
-                             <div className="mt-20">
-                          <p className='font-medium text-[18px]' >Delivery Details</p>
-                          <p className='text-gray-600 text-[16px]'>Email Address: {orderId?.data?.data?.email} </p>
-                        </div>
-                        {/* <div>
-                          <p className="text-[16px] mt-4 text-gray-700">
-                            Photo Area
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-[16px] mt-4 text-gray-700">
-                            Mat Style
-                          </p>
-                        </div> */}
-                        {/* 
-                        <div className="flex  items-center pt-[218px]">
-                          <img src="/images/sub.png" alt="" />
-                          <p className="text-black font-bold px-4 text-[13px]">
-                            1
-                          </p>
-                          <img src="/images/add.png" alt="" />
-                        </div> */}
-                      </div>
-                    </div>
-                    <div className="text-right   ">
-                      <p className="text-[18px] font-bold">
-                        N{items?.asset?.pricing}
-                      </p>
-                    </div>
-                  </>
-                )}
-                {items?.product_type === "Print" && (
-                  <>
-                    <div className="flex h-full">
-                      <img
-                        src={items?.deliverable_item_details[0]?.image_url}
-                        className="w-[390px] h-[403px] bg-cover"
-                        alt=""
-                      />
-                      <div className="pl-4">
-                        <p className="text-[18px] font-bold">
-                          {items?.canvas?.title}
-                        </p>
-                        <div>
-                          <p className="text-[16px] mt-4 text-gray-700">
-                            Print Size :{" "}
-                            {items?.deliverable_item_details[0]?.size?.height +
-                              " * " +
-                              items?.deliverable_item_details[0]?.size?.width}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-[16px] mt-4 text-gray-700">
-                            Print Type : {items?.canvas?.type}
-                          </p>
-                        </div>
-                        <div className='mt-4' > 
-                          {orderId?.data?.data?.status === "paid" ? (
-                            <div className="flex space-x-3  items-center">
-                              <div>
-                                <img src="/images/successch.png" />
-                              </div>
-                              <p className="text-[16px] text-gray-700">
-                                Successful
-                              </p>
-                            </div>
-                          ) : (
-                            <p className="text-[16px] mt-4 text-gray-700">
-                              status: {orderId?.data?.data?.status}
-                            </p>
-                          )}
-                        </div>
-
-                        <div className="mt-20">
-                          <p className='font-medium text-[18px]' >Delivery Details</p>
-                          <p className='text-gray-600 text-[16px]'>Email Address: {orderId?.data?.data?.email} </p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-[18px] font-bold">
-                        {items?.purchase_price}
-                      </p>
-                    </div>
-                  </>
-                )}
-                {items?.product_type === "Frame" && (
-                  <>
-                    <div className="flex h-full mt-8">
-                      <div className="">
-                        <div className="relative">
-                          {items?.frame?.title === "Black frame" && (
-                            <img
-                              src={"/images/frames1.png"}
-                              className={`w-[390px] h-[403px]  `}
-                            />
-                          )}
-
-                          {items?.frame?.title === "Gold Frame" && (
-                            <img
-                              src={"/images/goldframe.png"}
-                              className={`w-[390px] h-[403px]  `}
-                            />
-                          )}
-
-                          {items?.frame?.title === "White Frame" && (
-                            <img
-                              src={"/images/whiteframe.png"}
-                              className={`w-[390px] h-[403px]  `}
-                            />
-                          )}
-
-                          <div className="absolute z-10 top-[4%] left-[6%]  ">
-                            <img
-                              src={
-                                items?.deliverable_item_details[0]?.image_url
-                              }
-                              className="w-[348px] h-[371px] bg-cover"
-                              alt=""
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="pl-4">
-                        <p className="text-[18px] font-bold">
-                          {items?.frame?.title}
-                        </p>
-                        <div>
-                          <p className="text-[16px] mt-4 text-gray-700">
-                            Frame Size :{" "}
-                            {items?.deliverable_item_details[0]?.size?.height +
-                              " * " +
-                              items?.deliverable_item_details[0]?.size?.width}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-[16px] mt-4 text-gray-700">
-                            Style : Frame
-                          </p>
-                        </div>
-                        <div className='mt-4' > 
-                          {orderId?.data?.data?.status === "paid" ? (
-                            <div className="flex space-x-3  items-center">
-                              <div>
-                                <img src="/images/successch.png" />
-                              </div>
-                              <p className="text-[16px] text-gray-700">
-                                Successful
-                              </p>
-                            </div>
-                          ) : (
-                            <p className="text-[16px] mt-4 text-gray-700">
-                              status: {orderId?.data?.data?.status}
-                            </p>
-                          )}
-                        </div>
-                             <div className="mt-20">
-                          <p className='font-medium text-[18px]' >Delivery Details</p>
-                          <p className='text-gray-600 text-[16px]'>Email Address: {orderId?.data?.data?.email} </p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-[18px] font-bold">
-                        {items?.purchase_price}
-                      </p>
-                    </div>
-                  </>
-                )}
-                {items?.product_type === "Canvas" && (
-                  <>
-                    <div className="flex h-full mb-[200px] mt-[100px] w-full justify-between ">
-                      <div className="">
-                        <div className="relative ">
-                          <div className="imgconta  ">
-                            <img
-                              src={
-                                items?.deliverable_item_details[0]?.image_url
-                              }
-                              className="imgg"
-                              alt="Dynamic"
-                            />
-                            <style jsx>{`
-                              .imgconta {
-                                position: absolute;
-                                top: -13px;
-                                left: 75px;
-                                width: 210px;
-                                height: 243px;
-                              }
-
-                              .imgg {
-                                position: absolute;
-                                display: block;
-                                width: 210px;
-                                height: 243px;
-                                transform: rotate(-15deg) skew(16deg)
-                                  translate(0, 0);
-                                transition: 0.5s;
-                                box-shadow: -20px 20px 10px rgba(0, 0, 0, 0.5);
-                              }
-
-                              .imgconta::before {
-                                content: "";
-                                position: absolute;
-                                top: 33px;
-                                left: -12px;
-                                height: 103%;
-                                width: 20px;
-                                transform: rotate(-31deg) skewY(-30deg);
-                                background: url(${items
-                                    ?.deliverable_item_details[0]?.image_url})
-                                  no-repeat center center;
-                                background-size: cover;
-                                transition: 0.5s;
-                              }
-
-                              .imgconta::after {
-                                content: "";
-                                position: absolute;
-                                bottom: -4px;
-                                left: 91px;
-                                width: 71%;
-                                height: 20px;
-                                transform: rotate(30deg) skewY(-45deg);
-                                background: url(${items
-                                    ?.deliverable_item_details[0]?.image_url})
-                                  no-repeat center center;
-                                background-size: cover;
-                                transition: 0.5s;
-                              }
-                            `}</style>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="w-[64%] ">
-                        <p className="text-[18px] font-bold">
-                          {items?.canvas?.title}
-                        </p>
-                        <div>
-                          <p className="text-[16px] mt-4 text-gray-700">
-                            Frame Size :{" "}
-                            {items?.deliverable_item_details[0]?.size?.height +
-                              " * " +
-                              items?.deliverable_item_details[0]?.size?.width}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-[16px] mt-4 text-gray-700">
-                            Style: {items?.canvas?.type}
-                          </p>
-                        </div>
-                        <div className='mt-4' > 
-                          {orderId?.data?.data?.status === "paid" ? (
-                            <div className="flex space-x-3  items-center">
-                              <div>
-                                <img src="/images/successch.png" />
-                              </div>
-                              <p className="text-[16px] text-gray-700">
-                                Successful
-                              </p>
-                            </div>
-                          ) : (
-                            <p className="text-[16px] mt-4 text-gray-700">
-                              status: {orderId?.data?.data?.status}
-                            </p>
-                          )}
-                        </div>
-                             <div className="mt-20">
-                          <p className='font-medium text-[18px]' >Delivery Details</p>
-                          <p className='text-gray-600 text-[16px]'>Email Address: {orderId?.data?.data?.email} </p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="text-right mb-[200px] mt-[100px]">
-                      <p className="text-[18px] font-bold">
-                        {items?.purchase_price}
-                      </p>
-                    </div>
-                  </>
-                )}
+            {/* Order Items */}
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold text-gray-800 mb-4 flex items-center">
+                <ShoppingBag className="w-6 h-6 mr-2 text-purple-600" />
+                Order Items ({orderItems.length})
+              </h2>
+              <div className="space-y-6">
+                {orderItems?.map((item, index) => (
+                  <div key={index}>
+                    {item?.product_type === "Asset" && renderAssetItem(item)}
+                    {item?.product_type === "Print" && renderPrintItem(item)}
+                    {item?.product_type === "Frame" && renderFrameItem(item)}
+                    {item?.product_type === "Canvas" && renderCanvasItem(item)}
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
+
+            {/* Order Timeline */}
+            {orderData?.updated_at && (
+              <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+                <h3 className="text-lg font-bold text-gray-800 mb-4">Order Timeline</h3>
+                <div className="space-y-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                      <CheckCircle className="w-4 h-4 text-green-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-800">Order Placed</p>
+                      <p className="text-sm text-gray-500">
+                        {new Date(orderData?.updated_at).toLocaleDateString()} at {new Date(orderData?.updated_at).toLocaleTimeString()}
+                      </p>
+                    </div>
+                  </div>
+                  {orderData?.dispatched_at && (
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                        <Truck className="w-4 h-4 text-blue-600" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-800">Order Dispatched</p>
+                        <p className="text-sm text-gray-500">
+                          {new Date(orderData?.dispatched_at).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                  {orderData?.delivered_at && (
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                        <Package className="w-4 h-4 text-purple-600" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-800">Order Delivered</p>
+                        <p className="text-sm text-gray-500">
+                          {new Date(orderData?.delivered_at).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </>
+        )}
       </div>
     </ContributorLayout>
   );
