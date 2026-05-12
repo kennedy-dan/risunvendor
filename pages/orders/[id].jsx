@@ -3,6 +3,7 @@ import ContributorLayout from "@/components/ContributorLayout";
 import { useRouter } from "next/router";
 import { useSelector, useDispatch } from "react-redux";
 import { orderinfoId } from "@/store/slice/dashboardSlice";
+import axios from "axios";
 import { 
   ShoppingBag, 
   Truck, 
@@ -22,6 +23,8 @@ const OrderId = () => {
   const { id } = router.query;
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(true);
+  const [completingOrder, setCompletingOrder] = useState(false);
+  const [showCompleteModal, setShowCompleteModal] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -41,6 +44,8 @@ const OrderId = () => {
         return 'bg-yellow-100 text-yellow-800 border-yellow-200';
       case 'cancelled':
         return 'bg-red-100 text-red-800 border-red-200';
+      case 'completed':
+        return 'bg-blue-100 text-blue-800 border-blue-200';
       default:
         return 'bg-gray-100 text-gray-800 border-gray-200';
     }
@@ -53,6 +58,30 @@ const OrderId = () => {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0
     }).format(price);
+  };
+
+  const handleCompleteOrder = async () => {
+    if (!id) return;
+    
+    setCompletingOrder(true);
+    try {
+   
+      const response = await axios.post(
+        `/vendor/orders/${id}/complete`
+      );
+      
+      if (response.data.success) {
+        // Refresh order data
+        await dispatch(orderinfoId(id));
+        setShowCompleteModal(false);
+        // Show success message (you can add a toast notification here)
+      }
+    } catch (error) {
+      console.error('Error completing order:', error);
+      // Handle error (you can add error toast notification here)
+    } finally {
+      setCompletingOrder(false);
+    }
   };
 
   const OrderSummary = () => (
@@ -82,6 +111,8 @@ const OrderId = () => {
           <div className="bg-white p-3 rounded-full shadow-md">
             {orderData?.status === 'paid' ? (
               <CheckCircle className="w-6 h-6 text-green-600" />
+            ) : orderData?.status === 'completed' ? (
+              <CheckCircle className="w-6 h-6 text-blue-600" />
             ) : (
               <Clock className="w-6 h-6 text-yellow-600" />
             )}
@@ -93,16 +124,6 @@ const OrderId = () => {
             </span>
           </div>
         </div>
-        
-        {/* <div className="flex items-center space-x-3">
-          <div className="bg-white p-3 rounded-full shadow-md">
-            <Truck className="w-6 h-6 text-purple-600" />
-          </div>
-          <div>
-            <p className="text-sm text-gray-500">Delivery Fee</p>
-            <p className="font-semibold text-gray-800">{formatPrice(orderData?.delivery_fee)}</p>
-          </div>
-        </div> */}
       </div>
     </div>
   );
@@ -137,6 +158,32 @@ const OrderId = () => {
             <p className="text-sm text-gray-500">Phone Number</p>
             <p className="text-gray-800">{orderData?.phone_number || 'Not provided'}</p>
           </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const CompleteOrderModal = () => (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl max-w-md w-full p-6">
+        <h3 className="text-2xl font-bold text-gray-800 mb-4">Complete Order</h3>
+        <p className="text-gray-600 mb-6">
+          Are you sure you want to mark this order as completed? This action cannot be undone.
+        </p>
+        <div className="flex space-x-4">
+          <button
+            onClick={() => setShowCompleteModal(false)}
+            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleCompleteOrder}
+            disabled={completingOrder}
+            className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {completingOrder ? 'Processing...' : 'Yes, Complete Order'}
+          </button>
         </div>
       </div>
     </div>
@@ -285,8 +332,21 @@ const OrderId = () => {
             <ArrowLeft className="w-5 h-5" />
             <span>Back to Orders</span>
           </button>
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-800">Order Details</h1>
-          <p className="text-gray-500 mt-2">View and track your order information</p>
+          <div className="flex justify-between items-start">
+            <div>
+              <h1 className="text-3xl md:text-4xl font-bold text-gray-800">Order Details</h1>
+              <p className="text-gray-500 mt-2">View and track your order information</p>
+            </div>
+            {orderData?.status === 'paid' && (
+              <button
+                onClick={() => setShowCompleteModal(true)}
+                className="px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors flex items-center space-x-2"
+              >
+                <CheckCircle className="w-5 h-5" />
+                <span>Mark as Completed</span>
+              </button>
+            )}
+          </div>
         </div>
 
         {loading ? (
@@ -361,12 +421,28 @@ const OrderId = () => {
                       </div>
                     </div>
                   )}
+                  {orderData?.completed_at && (
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                        <CheckCircle className="w-4 h-4 text-blue-600" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-800">Order Completed</p>
+                        <p className="text-sm text-gray-500">
+                          {new Date(orderData?.completed_at).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
           </>
         )}
       </div>
+
+      {/* Complete Order Modal */}
+      {showCompleteModal && <CompleteOrderModal />}
     </ContributorLayout>
   );
 };
