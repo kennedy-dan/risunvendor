@@ -103,7 +103,7 @@ export default function ContributorLayout({ title, children }) {
                   dispatch(logOutCustomer());
                   router.push("/login");
                 }}
-                className="w-full text-xl text-left px-4 py-3 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
+                className="w-full text-xl text-left px-4 py-3  font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
               >
                 Log out
               </button>
