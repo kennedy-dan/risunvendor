@@ -70,7 +70,7 @@ export function resendOtp(transactionId) {
 }
 
 export function confirmOtp(payload) {
-  return axios.post(`/contributor/withdrawals/confirm-otp`, payload);
+  return axios.post(`/vendor/withdrawals/confirm-otp`, payload);
 }
 
 export function getBankingDetails() {

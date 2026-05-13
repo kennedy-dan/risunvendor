@@ -1,113 +1,125 @@
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-// import { _getContributorData } from "store/slice/contributorSlice";
 import { confirmOtp, resendOtp } from "@/services/contributor";
-import { LineChart, BarChart } from "@/components/Charts";
 import { MoonLoader } from "react-spinners";
 import { toast } from "react-toastify";
 import axios from "axios";
-import { dashboardinfo } from "@/store/slice/dashboardSlice";
+import { dashboardinfo, withdrawreq } from "@/store/slice/dashboardSlice";
 
-import useSWR from "swr";
-import NoImagePlaceholder from "@/public/svgs/no-image-placeholder.svg";
 import ContributorLayout from "@/components/ContributorLayout";
-import Image from "next/image";
 import OTPInput from "react-otp-input";
 import Info from "@/components/Info";
 import Modal from "@/components/Modal";
 import styles from "@/styles/contributor/content/earnings.module.scss";
-import {
-  withdrawreq
-} from "@/store/slice/dashboardSlice";
+
 export default function Index() {
   const dispatch = useDispatch();
-//   const { data, loading } = useSelector((state) => state.contributor);
-let data
-let loading 
+  let data;
+  let loading;
+  
   const [otp, setOtp] = useState("");
   const [transactionRef, setTransactionRef] = useState("");
   const [balance, setWalletBalance] = useState("");
   const [initializeOtp, setInitializeOtp] = useState(false);
   const { info } = useSelector((state) => state.dashboard);
   const [earningsHistory, setEarningsHistory] = useState([]);
-
   const [activeTab, setActiveTab] = useState("earnings");
   const [modalDisplay, setModalDisplay] = useState(false);
   const [amount, setAmount] = useState("");
+  const [isProcessing, setIsProcessing] = useState(false);
+
   const getWithdrawalHistory = (url) =>
     axios.get(url).then(({ data }) => data.data);
   const getEarningsHistory = (url) =>
     axios.get(url).then(({ data }) => data.data);
-  // const { data: withdrawalHistory } = useSWR(
-  //   // "/contributor/payouts",
-  //   getWithdrawalHistory
-  // );
-  // const { data: earningsHistory } = useSWR(
-  //   // "/contributor/earnings",
-  //   getEarningsHistory
-  // );
+
   useEffect(() => {
     dispatch(dashboardinfo());
   }, []);
 
   useEffect(() => {
-    if(info?.data?.data?.wallet_balance){
-      setWalletBalance(info?.data?.data?.wallet_balance)
-      setEarningsHistory(info?.data?.data?.earnings_history)
+    if (info?.data?.data?.wallet_balance) {
+      setWalletBalance(info?.data?.data?.wallet_balance);
+      setEarningsHistory(info?.data?.data?.earnings_history);
     }
   }, [info]);
 
-  let withdrawalHistory
-  function initializeWithdrawal(e) {
-    e.preventDefault();
-    console.log('uhuhu')
-    dispatch(withdrawreq({ amount: +amount })).then((response) => {
-      console.log(response);
-      if (response?.payload?.data?.id) {
-        toast.success("request sent successfully");
-    // dispatch(profileinfo());
+  let withdrawalHistory;
 
+  async function initializeWithdrawal(e) {
+    e.preventDefault();
+    
+    if (isProcessing) return;
+    
+    setIsProcessing(true);
+    
+    try {
+      const response = await dispatch(withdrawreq({ amount: +amount })).unwrap();
+      
+      if (response?.id || response?.data?.id) {
+        // Extract tx_ref from response
+        const txRef = response?.tx_ref || response?.data?.tx_ref;
+        
+        if (txRef) {
+          setTransactionRef(txRef);
+          setInitializeOtp(true);
+          setModalDisplay(true);
+          toast.success("Withdrawal request sent successfully! Please enter the OTP sent to your email.");
+        } else {
+          toast.error("No transaction reference received");
+        }
       } else {
-        toast.error("request was not sent ");
+        toast.error(response?.message || "Request was not sent");
+        setModalDisplay(false);
       }
-    })
-  }
-  // {
-  //   pending: "Requesting",
-  //   success: {
-  //     render({ data }) {
-  //       setInitializeOtp(true);
-  //       setTransactionRef(data?.data?.data?.tx_ref);
-  //     //   dispatch(_getContributorData());
-  //       return data?.data.message;
-  //     },
-  //   },
-  // }
-  function handleConfirmOtp(e) {
-    e.preventDefault();
-    toast.promise(confirmOtp({ otp_code: otp, tx_ref: transactionRef }), {
-      pending: "Processing",
-      success: {
-        render() {
-        //   dispatch(_getContributorData());
-          setModalDisplay(false);
-          return data?.data.message;
-        },
-      },
-    });
+    } catch (error) {
+      console.error("Withdrawal error:", error);
+      toast.error(error?.response?.data?.message || "Request failed. Please try again.");
+    } finally {
+      setIsProcessing(false);
+    }
   }
 
-  function handleResendOtp() {
-    toast.promise(resendOtp(transactionRef), {
-      pending: "Processing",
-      success: {
-        render() {
-        //   dispatch(_getContributorData());
-          setModalDisplay(false);
-          return data?.data.message;
-        },
-      },
-    });
+  async function handleConfirmOtp(e) {
+    e.preventDefault();
+    
+    if (!otp || otp.length !== 6) {
+      toast.error("Please enter a valid 6-digit OTP");
+      return;
+    }
+    
+    try {
+      const response = await confirmOtp({ 
+        otp_code: otp, 
+        tx_ref: transactionRef 
+      });
+      
+      if (response?.status === 200 || response?.success) {
+        toast.success(response?.data?.message || "Withdrawal confirmed successfully!");
+        setModalDisplay(false);
+        setInitializeOtp(false);
+        setOtp("");
+        setAmount("");
+        setTransactionRef("");
+        // Refresh dashboard data
+        dispatch(dashboardinfo());
+      } else {
+        toast.error(response?.data?.message || "OTP verification failed");
+      }
+    } catch (error) {
+      console.error("OTP confirmation error:", error);
+      toast.error(error?.response?.data?.message || "Failed to verify OTP. Please try again.");
+    }
+  }
+
+  async function handleResendOtp() {
+    try {
+      const response = await resendOtp(transactionRef);
+      toast.success(response?.data?.message || "OTP resent successfully!");
+    } catch (error) {
+      console.error("Resend OTP error:", error);
+      toast.error(error?.response?.data?.message || "Failed to resend OTP. Please try again.");
+    }
   }
 
   const earnings = (
@@ -118,7 +130,6 @@ let loading
           <thead>
             <tr>
               <th>Date</th>
-              {/* <th>Image</th> */}
               <th>Type</th>
               <th>Category</th>
               <th>Amount</th>
@@ -129,14 +140,6 @@ let loading
               ?.map((data) => (
                 <tr key={data.id}>
                   <td>{new Date(data.created_at).toLocaleDateString()}</td>
-                  {/* <td>
-                    <Image
-                      src={data.asset?.image?.public_url || NoImagePlaceholder}
-                      alt="user"
-                      width={100}
-                      height={100}
-                    />
-                  </td> */}
                   <td>{data?.type}</td>
                   <td>{data?.source?.detail?.product}</td>
                   <td>₦{data?.amount}</td>
@@ -148,6 +151,7 @@ let loading
       )}
     </>
   );
+
   const withdrawals = (
     <>
       {withdrawalHistory?.length === 0 && <Info message="No withdrawals" />}
@@ -182,9 +186,13 @@ let loading
     </>
   );
 
-  useEffect(() => {
-    // dispatch(_getContributorData());
-  }, []);
+  const closeModal = () => {
+    setModalDisplay(false);
+    setInitializeOtp(false);
+    setOtp("");
+    setAmount("");
+    setTransactionRef("");
+  };
 
   return (
     <ContributorLayout title="Wallet">
@@ -197,141 +205,79 @@ let loading
           />
         )}
 
-        {/* {data && ( */}
-          <>
-            <div className={styles.summary}>
-              <h1>Overview</h1>
-              <div>
-                {/* {earningsHistory?.length > 0 && (
-                  <div className={styles.chart}>
-                    <LineChart
-                      datasetIdKey="pie-chart"
-                      data={{
-                        labels: earningsHistory.map((data) =>
-                          new Date(data.created_at).toLocaleDateString()
-                        ),
-                        datasets: [
-                          {
-                            id: 1,
-                            label: "Earnings",
-                            data: earningsHistory.map(
-                              (data) => data.purchase_amount
-                            ),
-                            borderColor: "rgb(255, 99, 132)",
-                            backgroundColor: "rgba(255, 99, 132, 0.5)",
-                          },
-                        ],
-                      }}
-                      options={{
-                        plugins: {
-                          legend: {
-                            position: "top",
-                          },
-                        },
-                      }}
-                    />
-                  </div>
-                )} */}
-                
-                <div className={`${styles.withdraw} justify-between `}>
-                  <div className="flex flex-col justify-between " >
+        <>
+          <div className={styles.summary}>
+            <h1>Overview</h1>
+            <div>
+              <div className={`${styles.withdraw} justify-between `}>
+                <div className="flex flex-col justify-between">
                   <h5>Wallet balance</h5>
                   <h2>
-                    {" "}
                     &#8358;
-                    {
-                      balance.split('.')[0]
-                    }
+                    {balance?.split('.')[0]}
                   </h2>
-                  <button className='mt-20'  onClick={() => setModalDisplay(true)}>
+                  <button className='mt-20' onClick={() => setModalDisplay(true)}>
                     Withdraw
                   </button>
-                  </div>
-                
+                </div>
 
-                  <div>
-                    <img src='/images/ebw.png' alt='' />
-                  </div>
+                <div>
+                  <img src='/images/ebw.png' alt='' />
                 </div>
               </div>
             </div>
-            <div className={styles.tabs}>
-              <div className={styles.title}>
-                <h1
-                  onClick={() => setActiveTab("earnings")}
-                  className={activeTab === "earnings" ? styles.active : null}
-                >
-                  Payment History
-                </h1>
-                <h1
-                  onClick={() => setActiveTab("withdrawals")}
-                  className={activeTab === "withdrawals" ? styles.active : null}
-                >
-                  Withdrawal History
-                </h1>
-              </div>
-              <div className={styles.table}>
-                {activeTab === "earnings" && earnings}
-                {activeTab === "withdrawals" && withdrawals}
-              </div>
+          </div>
+          <div className={styles.tabs}>
+            <div className={styles.title}>
+              <h1
+                onClick={() => setActiveTab("earnings")}
+                className={activeTab === "earnings" ? styles.active : null}
+              >
+                Payment History
+              </h1>
+              <h1
+                onClick={() => setActiveTab("withdrawals")}
+                className={activeTab === "withdrawals" ? styles.active : null}
+              >
+                Withdrawal History
+              </h1>
             </div>
-          </>
-        {/* // )} */}
+            <div className={styles.table}>
+              {activeTab === "earnings" && earnings}
+              {activeTab === "withdrawals" && withdrawals}
+            </div>
+          </div>
+        </>
       </div>
-      <Modal display={modalDisplay} close={() => setModalDisplay(false)}>
-        {!initializeOtp && (
-          <div className="w-[70rem]">
-            <div className='flex justify-between items-end' >
 
+      <Modal display={modalDisplay} close={closeModal}>
+        {!initializeOtp ? (
+          <div className="w-[70rem]">
+            <div className='flex justify-between items-end'>
               <div>
-              <h1 className="mb-1 text-2xl">Withdrawal Request</h1>
-            <p className="text-xl">
-              Send a withdrawal request to receive your earnings
-            </p>
+                <h1 className="mb-1 text-2xl">Withdrawal Request</h1>
+                <p className="text-xl">
+                  Send a withdrawal request to receive your earnings
+                </p>
               </div>
 
               <div>
-              <div className={` flex text-white sp justify-between w-[35rem] rounded-2xl px-6 py-3 bg-[#303030] `}>
-                  <div className="flex flex-col justify-between " >
-                  <h5>Wallet balance</h5>
-                  <h2>
-                    {" "}
-                    &#8358;
-                      {
-                      balance.split('.')[0]
-                    }
-                  </h2>
-               
+                <div className={`flex text-white sp justify-between w-[35rem] rounded-2xl px-6 py-3 bg-[#303030]`}>
+                  <div className="flex flex-col justify-between">
+                    <h5>Wallet balance</h5>
+                    <h2>
+                      &#8358;
+                      {balance?.split('.')[0]}
+                    </h2>
                   </div>
-                
-
                   <div>
                     <img src='/images/ebw.png' alt='' />
                   </div>
                 </div>
               </div>
-
             </div>
-          
+
             <form onSubmit={initializeWithdrawal} className="mt-10 space-y-10">
-              {/* <fieldset className="">
-              <label htmlFor="balance" className="text-[1.3rem] mb-4 block">
-                Earning balance
-              </label>
-              <input
-                type="text"
-                className="bg-[#F2F2F2] w-full h-14 p-6 font-bold rounded-2xl"
-              />
-            </fieldset>
-            <fieldset>
-              <label htmlFor="balance" className="text-[1.3rem] mb-4 block">
-                Bank account (Your funds will be withdrawn to this account)
-              </label>
-              <input
-                type="text"
-                className="bg-[#F2F2F2] w-full h-14 p-6 font-bold rounded-2xl"
-              />
-            </fieldset> */}
               <fieldset>
                 <label htmlFor="amount" className="text-[1.3rem] mb-4 block">
                   Amount to withdraw
@@ -343,29 +289,24 @@ let loading
                   onChange={(e) => setAmount(e.target.value)}
                   className="bg-[#F2F2F2] w-full h-14 p-6 font-bold rounded-2xl"
                   required
+                  disabled={isProcessing}
                 />
               </fieldset>
-              {/* <fieldset>
-              <label htmlFor="balance" className="text-[1.3rem] mb-4 block">
-                Password
-              </label>
-              <input
-                type="text"
-                className="bg-[#F2F2F2] w-full h-14 p-6 font-bold rounded-2xl"
-              />
-            </fieldset> */}
-              <button className="bg-[#2F4858] w-[30rem] py-5 px-12 mx-auto block text-white rounded-lg">
-                Send Withdrawal Request
+              <button 
+                type="submit"
+                className="bg-[#2F4858] w-[30rem] py-5 px-12 mx-auto block text-white rounded-lg disabled:opacity-50"
+                disabled={isProcessing}
+              >
+                {isProcessing ? "Processing..." : "Send Withdrawal Request"}
               </button>
             </form>
           </div>
-        )}
-        {initializeOtp && (
+        ) : (
           <div className="w-[40rem]">
             <h1 className="mb-1 text-2xl">Enter OTP</h1>
             <p className="text-xl">
-              A six figure one time password was sent to your mail, enter to
-              complete transaction.{" "}
+              A 6-digit one-time password was sent to your email. Enter it to
+              complete the transaction.{" "}
               <span
                 onClick={handleResendOtp}
                 className="font-bold cursor-pointer text-[#2F4858] hover:underline"
@@ -382,8 +323,11 @@ let loading
                 inputStyle="bg-gray-100 !w-20 h-20 rounded-xl mx-2"
                 containerStyle="justify-center my-10"
               />
-              <button className="bg-[#2F4858] w-[30rem] py-4 px-12 mx-auto block text-white rounded-full">
-                Confirm
+              <button 
+                type="submit"
+                className="bg-[#2F4858] w-[30rem] py-4 px-12 mx-auto block text-white rounded-full"
+              >
+                Confirm OTP
               </button>
             </form>
           </div>
