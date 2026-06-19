@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import ContributorLayout from "@/components/ContributorLayout";
 import { useRouter } from "next/router";
 import { useSelector, useDispatch } from "react-redux";
-import { orderinfoId } from "@/store/slice/dashboardSlice";
+import { orderinfoId, orderinfoIdFez } from "@/store/slice/dashboardSlice";
 import axios from "axios";
 import { 
   ShoppingBag, 
@@ -16,22 +16,85 @@ import {
   Package,
   ArrowLeft
 } from "lucide-react";
+import { toast } from "react-toastify";
+
+const internalAxios = axios.create({ baseURL: "" });
+
 
 const OrderId = () => {
   const router = useRouter();
-  const { orderId } = useSelector((state) => state.dashboard);
+  const { orderId, orderIdFez } = useSelector((state) => state.dashboard);
   const { id } = router.query;
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(true);
   const [completingOrder, setCompletingOrder] = useState(false);
   const [showCompleteModal, setShowCompleteModal] = useState(false);
+  const [fezAuthToken, setFezAuthToken] = useState(null);
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
+  const [canCreateFezOrder, setCanCreateFezOrder] = useState(false);
+
+  console.log('orderIdFez:', orderIdFez);
+
+  const fezOrder = orderIdFez?.data?.data
 
   useEffect(() => {
     if (id) {
       dispatch(orderinfoId(id));
+      dispatch(orderinfoIdFez(id));
       setLoading(false);
     }
   }, [id]);
+
+
+    const authenticateFezDelivery = async () => {
+
+    setIsAuthenticating(true);
+    try {
+      const response = await internalAxios.post("/api/fez/auth");
+
+      if (response.data?.status === "Success") {
+        const authToken = response.data.authDetails.authToken;
+        setFezAuthToken(authToken);
+        localStorage.setItem("fez_auth_token", authToken);
+        localStorage.setItem("fez_token_expiry", Date.now() + 3600000);
+        toast.success("Delivery service authentication successful");
+        return authToken;
+      } else {
+        throw new Error("Authentication failed");
+      }
+    } catch (error) {
+      console.error("Fez Delivery authentication error:", error);
+      toast.error("Failed to authenticate delivery service");
+      return null;
+    } finally {
+      setIsAuthenticating(false);
+    }
+  };
+
+
+const createFezDeliveryOrder = async () => {
+  if (!fezOrder) return;
+
+  const payload = {
+    ...fezOrder,
+    BatchID: fezOrder.batchID, // map correctly
+  };
+
+  // optional: remove old key to avoid confusion
+  delete payload.batchID;
+
+  const response = await internalAxios.post("/api/fez/order", [payload], {
+    headers: {
+      Authorization: `Bearer ${fezAuthToken}`,
+    },
+  });
+
+  if (response.data?.status === "Success") {
+    toast.success("Fez delivery order created successfully");
+  }
+
+  return response.data;
+};
 
   const orderData = orderId?.data?.data;
   const orderItems = orderData?.order_items_detailed || orderData?.order_items || [];
@@ -60,6 +123,29 @@ const OrderId = () => {
     }).format(price);
   };
 
+
+    useEffect(() => {
+
+    // Load addresses from localStorage
+    const storedAddresses = JSON.parse(
+      localStorage.getItem("customerAddresses") || "[]",
+    );
+
+    // Check for existing Fez authentication token
+    const storedToken = localStorage.getItem("fez_auth_token");
+    const tokenExpiry = localStorage.getItem("fez_token_expiry");
+
+    const initFezDelivery = async () => {
+      let authToken = storedToken;
+
+      authToken = await authenticateFezDelivery();
+
+   
+    };
+
+    initFezDelivery();
+  }, [dispatch]);
+
   const handleCompleteOrder = async () => {
     if (!id) return;
     
@@ -74,6 +160,7 @@ const OrderId = () => {
         // Refresh order data
         await dispatch(orderinfoId(id));
         setShowCompleteModal(false);
+        setCanCreateFezOrder(true);
         // Show success message (you can add a toast notification here)
       }
     } catch (error) {
@@ -346,7 +433,18 @@ const OrderId = () => {
                 <span>Mark as Completed</span>
               </button>
             )}
-          </div>
+
+<button
+  onClick={createFezDeliveryOrder}
+  disabled={!canCreateFezOrder}
+  className={`px-4 py-2 rounded-xl ${
+    canCreateFezOrder
+      ? "bg-purple-600 text-white"
+      : "bg-gray-300 text-gray-500 cursor-not-allowed"
+  }`}
+>
+  Create Fez Order
+</button>          </div>
         </div>
 
         {loading ? (

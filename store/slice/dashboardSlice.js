@@ -14,7 +14,8 @@ import {
   requesthistoryWithdrawal,
   getbanks,
   postbanks,
-  getBankingDetails
+  getBankingDetails,
+  orderIdFez
 } from "@/services/customer";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
@@ -74,6 +75,13 @@ export const orderinfoId = createAsyncThunk(
     return response.data;
   }
 );
+export const orderinfoIdFez = createAsyncThunk(
+  `customer/orderinfoIdFez`,
+  async (payload) => {
+    const response = await orderIdFez(payload);
+    return response.data;
+  }
+);
 
 export const profileinfo = createAsyncThunk(
   `customer/profileinfo`,
@@ -117,6 +125,10 @@ const initialState = {
     data: null,
   },
   orderId: {
+    loading: true,
+    data: null,
+  },
+  orderIdFez: {
     loading: true,
     data: null,
   },
@@ -175,6 +187,19 @@ export const dashboardSlice = createSlice({
         state.orderId.data = payload;
         state.orderId.loading = false;
       });
+
+        builder
+      .addCase(orderinfoIdFez.pending, (state) => {
+        state.orderIdFez.loading = true;
+      })
+      .addCase(orderinfoIdFez.rejected, (state) => {
+        state.orderIdFez.loading = false;
+      })
+      .addCase(orderinfoIdFez.fulfilled, (state, { payload }) => {
+        state.orderIdFez.data = payload;
+        state.orderIdFez.loading = false;
+      });
+
 
     builder
       .addCase(profileinfo.pending, (state) => {

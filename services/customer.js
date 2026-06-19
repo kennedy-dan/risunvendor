@@ -12,6 +12,9 @@ export function order() {
 export function orderId(id) {
   return axios.get(`/vendor/orders/${id}`)
 }
+export function orderIdFez(id) {
+  return axios.get(`/vendor/fez-orders/${id}`)
+}
 export function profile() {
   return axios.get('/vendor/profile')
 }
