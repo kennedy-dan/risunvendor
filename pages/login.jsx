@@ -47,7 +47,6 @@ const Index = () => {
           Login
         </p>
         <p className="text-gray-600 text-center text-3xl font-bold pt-5">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
         
         </p>
         <p className="text-blue-600 text-center text-3xl font-bold pt-5">
